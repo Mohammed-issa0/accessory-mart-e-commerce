@@ -1,8 +1,15 @@
+import c1 from "@/public/imgs/cap.svg"
+import c2 from "@/public/imgs/hand-bag-02.svg"
+import c3 from "@/public/imgs/shirt-01.png"
+import Image from "next/image"
 export default function CategorySection() {
   const categories = [
-    { name: "الرجال", icon: "shirt" },
-    { name: "الاطفال", icon: "cap" },
-    { name: "النساء", icon: "bag" },
+    { name: "الاطفال", icon: c1 },
+    { name: "النساء", icon: c2 },
+    { name: "الرجال", icon: c3 },
+    { name: "الاطفال", icon: c1 },
+    { name: "النساء", icon: c2 },
+    { name: "الرجال", icon: c3 },
   ]
 
   const getIcon = (type: string) => {
@@ -62,26 +69,26 @@ export default function CategorySection() {
         </div>
 
         {/* First Row */}
-        <div className="grid grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6 mb-4 md:mb-6">
           {categories.map((category, index) => (
             <button
               key={`row1-${index}`}
-              className="flex flex-col items-center justify-center gap-2 md:gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
+              className="flex flex-col items-center justify-center h-[100px] md:h-[120px] gap-2 md:gap-3 p-6 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
             >
-              <div className="text-black">{getIcon(category.icon)}</div>
+              <Image src={category.icon} alt="icon" className="p-2"/>
               <span className="text-sm md:text-base font-medium">{category.name}</span>
             </button>
           ))}
         </div>
 
         {/* Second Row */}
-        <div className="grid grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
           {categories.map((category, index) => (
             <button
               key={`row2-${index}`}
-              className="flex flex-col items-center justify-center gap-2 md:gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
+              className="flex flex-col items-center justify-center h-[100px] md:h-[120px] gap-2 md:gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
             >
-              <div className="text-black">{getIcon(category.icon)}</div>
+              <Image src={category.icon} alt="icon" className="p-2"/>
               <span className="text-sm md:text-base font-medium">{category.name}</span>
             </button>
           ))}

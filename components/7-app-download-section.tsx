@@ -36,7 +36,7 @@ export default function AppDownloadSection() {
               <Image
                 src={phone1}
                 alt="App Preview"
-                className="h-full w-auto object-contain"
+                className="h-full w-auto object-contain mb-[-104px]"
               />
             </div>
           </div>
