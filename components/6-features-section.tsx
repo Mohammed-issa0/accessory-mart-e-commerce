@@ -1,5 +1,3 @@
-import flex1 from "@/public/imgs/flex.png"
-import Image from "next/image"
 export default function FeaturesSection() {
   const features = [
     {
@@ -45,10 +43,21 @@ export default function FeaturesSection() {
     },
   ]
 
+  const DecorativeStar = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 100 100" fill="currentColor">
+      <path d="M50 0 L55 45 L100 50 L55 55 L50 100 L45 55 L0 50 L45 45 Z" />
+    </svg>
+  )
+
   return (
     <section className="py-12 md:py-16 bg-gray-50 relative overflow-hidden">
-      {/* Decorative Stars */}
-     <Image src={flex1} alt="Decorative Stars"/>
+      <DecorativeStar className="absolute top-12 left-12 w-12 h-12 md:w-16 md:h-16 text-black opacity-100" />
+      <DecorativeStar className="absolute top-8 left-32 w-6 h-6 md:w-8 md:h-8 text-black opacity-100" />
+      <DecorativeStar className="absolute top-32 right-16 w-10 h-10 md:w-12 md:h-12 text-black opacity-100" />
+      <DecorativeStar className="absolute top-16 right-48 w-8 h-8 md:w-10 md:h-10 text-black opacity-100" />
+      <DecorativeStar className="absolute bottom-24 left-24 w-8 h-8 md:w-10 md:h-10 text-black opacity-100" />
+      <DecorativeStar className="absolute bottom-32 right-32 w-6 h-6 md:w-8 md:h-8 text-black opacity-100" />
+
       <div className="container mx-auto px-4 relative z-10">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">لأن كل تفصيلة تروي حكاية</h2>
 
@@ -56,7 +65,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-3xl p-6 md:p-8 border-2 border-gray-200 hover:border-gray-300 transition-colors"
+              className="bg-white rounded-[2rem] p-6 md:p-8 border border-gray-200 hover:border-gray-300 transition-colors"
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="text-right flex-1">

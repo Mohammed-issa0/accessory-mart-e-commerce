@@ -1,9 +1,55 @@
 export default function CategorySection() {
   const categories = [
-    { name: "الرجال", icon: "👕" },
-    { name: "الاطفال", icon: "🧢" },
-    { name: "النساء", icon: "👜" },
+    { name: "الرجال", icon: "shirt" },
+    { name: "الاطفال", icon: "cap" },
+    { name: "النساء", icon: "bag" },
   ]
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "shirt":
+        return (
+          <svg
+            className="w-10 h-10 md:w-12 md:h-12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z" />
+          </svg>
+        )
+      case "cap":
+        return (
+          <svg
+            className="w-10 h-10 md:w-12 md:h-12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        )
+      case "bag":
+        return (
+          <svg
+            className="w-10 h-10 md:w-12 md:h-12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+        )
+      default:
+        return null
+    }
+  }
 
   return (
     <section className="py-12 md:py-16 bg-white">
@@ -16,50 +62,13 @@ export default function CategorySection() {
         </div>
 
         {/* First Row */}
-        <div className="grid grid-cols-3 gap-4 ">
+        <div className="grid grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
           {categories.map((category, index) => (
             <button
               key={`row1-${index}`}
-              className="flex flex-col items-center gap-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="flex flex-col items-center justify-center gap-2 md:gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
             >
-              <div className="text-4xl md:text-5xl">
-                {index === 0 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-                    <path d="M12 11v6M9 14h6" />
-                  </svg>
-                )}
-                {index === 1 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
-                )}
-                {index === 2 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                    <line x1="7" y1="7" x2="7.01" y2="7" />
-                  </svg>
-                )}
-              </div>
+              <div className="text-black">{getIcon(category.icon)}</div>
               <span className="text-sm md:text-base font-medium">{category.name}</span>
             </button>
           ))}
@@ -70,46 +79,9 @@ export default function CategorySection() {
           {categories.map((category, index) => (
             <button
               key={`row2-${index}`}
-              className="flex flex-col items-center gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
+              className="flex flex-col items-center justify-center gap-2 md:gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
             >
-              <div className="text-4xl md:text-5xl">
-                {index === 0 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                    <line x1="7" y1="7" x2="7.01" y2="7" />
-                  </svg>
-                )}
-                {index === 1 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
-                )}
-                {index === 2 && (
-                  <svg
-                    className="w-12 h-12 md:w-16 md:h-16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-                    <path d="M12 11v6M9 14h6" />
-                  </svg>
-                )}
-              </div>
+              <div className="text-black">{getIcon(category.icon)}</div>
               <span className="text-sm md:text-base font-medium">{category.name}</span>
             </button>
           ))}
