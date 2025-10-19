@@ -1,3 +1,5 @@
+import flex1 from "@/public/imgs/flex.png"
+import Image from "next/image"
 export default function FeaturesSection() {
   const features = [
     {
@@ -46,27 +48,7 @@ export default function FeaturesSection() {
   return (
     <section className="py-12 md:py-16 bg-gray-50 relative overflow-hidden">
       {/* Decorative Stars */}
-      <div className="absolute top-10 left-10 text-gray-300">
-        <svg className="w-12 h-12 md:w-16 md:h-16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0l3 9h9l-7.5 6 3 9L12 18l-7.5 6 3-9L0 9h9z" />
-        </svg>
-      </div>
-      <div className="absolute top-20 right-20 text-gray-300">
-        <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0l3 9h9l-7.5 6 3 9L12 18l-7.5 6 3-9L0 9h9z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-20 left-1/4 text-gray-300">
-        <svg className="w-10 h-10 md:w-14 md:h-14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0l3 9h9l-7.5 6 3 9L12 18l-7.5 6 3-9L0 9h9z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-32 right-1/3 text-gray-300">
-        <svg className="w-6 h-6 md:w-10 md:h-10" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0l3 9h9l-7.5 6 3 9L12 18l-7.5 6 3-9L0 9h9z" />
-        </svg>
-      </div>
-
+     <Image src={flex1} alt="Decorative Stars"/>
       <div className="container mx-auto px-4 relative z-10">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">لأن كل تفصيلة تروي حكاية</h2>
 

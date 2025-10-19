@@ -2,23 +2,25 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-
+import { ArrowRight } from "lucide-react"
+import mainphoto from "@/public/imgs/mainphoto.png"
+import main2 from "@/public/imgs/main2.jpg"
+import main3 from "@/public/imgs/main3.jpg"
+import Image from "next/image"
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
   return (
-    <section className="relative bg-gray-50 py-8 md:py-12">
+    <section className="relative py-8 md:py-12 mt-[131px]">
       <div className="container mx-auto px-4">
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 min-h-[500px] md:min-h-[600px]">
           {/* Background Image */}
           <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0-hero%20section-JM2EH87lcoJD0TJzOBUZ5ydVpdP6x3.png)",
-            }}
-          />
+            className="absolute inset-0 bg-cover bg-center" 
+          >
+            <Image src={mainphoto} alt="main Photo" className="w-full"/>
+
+          </div>
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/20" />
@@ -32,10 +34,11 @@ export default function HeroSection() {
               </p>
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-gray-100 text-base md:text-lg px-8 py-6 rounded-full"
+                className="bg-white cursor-pointer text-black hover:bg-gray-100 text-base md:text-lg px-8 py-6 rounded-sm"
               >
+                <ArrowRight className="ml-2 p-1 size-7 bg-black text-white rounded-sm" />
                 استكشف المنتجات
-                <ArrowLeft className="mr-2 h-5 w-5" />
+                
               </Button>
             </div>
           </div>

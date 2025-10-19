@@ -1,20 +1,14 @@
 import { Button } from "@/components/ui/button"
-import { Apple } from "lucide-react"
-
+import apple from "@/public/imgs/apple (1).png"
+import Image from "next/image"
+import phone1 from "@/public/imgs/phone (1).png"
 export default function AppDownloadSection() {
   return (
-    <section className="py-12 md:py-16 bg-gray-100">
+    <section className="py-12 md:py-16 ">
       <div className="container mx-auto px-4">
-        <div className="bg-white rounded-3xl overflow-hidden">
+        <div className="bg-gray-200 rounded-3xl overflow-hidden">
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            {/* Left: Phone Mockups */}
-            <div className="relative h-[400px] md:h-[500px] flex items-center justify-center p-8">
-              <img
-                src="/placeholder.svg?height=500&width=250"
-                alt="App Preview"
-                className="h-full w-auto object-contain"
-              />
-            </div>
+            
 
             {/* Right: Content */}
             <div className="p-8 md:p-12 text-right">
@@ -25,7 +19,7 @@ export default function AppDownloadSection() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-black text-white hover:bg-gray-800 rounded-2xl px-8 py-6 text-base">
-                  <Apple className="ml-2 h-6 w-6" />
+                  <Image src={apple} className="ml-2 h-6 w-6"/>
                   App Store
                 </Button>
                 <Button size="lg" className="bg-black text-white hover:bg-gray-800 rounded-2xl px-8 py-6 text-base">
@@ -35,6 +29,15 @@ export default function AppDownloadSection() {
                   Google Play
                 </Button>
               </div>
+            </div>
+
+            {/* Left: Phone Mockups */}
+            <div className="relative h-[400px] md:h-[500px] flex items-center justify-center p-8">
+              <Image
+                src={phone1}
+                alt="App Preview"
+                className="h-full w-auto object-contain"
+              />
             </div>
           </div>
         </div>

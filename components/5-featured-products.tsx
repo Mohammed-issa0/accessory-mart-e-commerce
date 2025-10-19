@@ -2,14 +2,17 @@
 
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import a1 from "@/public/imgs/a1.png"
+import a2 from "@/public/imgs/a2.png"
+import a3 from "@/public/imgs/a3.png"
+import Image from "next/image"
 export default function FeaturedProducts() {
   const products = [
     {
       id: 1,
       name: "حقيبة غوتشي GG مارمونت",
       price: 2980.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a1,
       colors: ["#F5E6D3", "#000000"],
       liked: false,
     },
@@ -17,7 +20,7 @@ export default function FeaturedProducts() {
       id: 2,
       name: "حقيبة كتف من برادا",
       price: 1750.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a2,
       colors: ["#000000", "#F5E6D3", "#E8E8F0"],
       liked: true,
     },
@@ -25,7 +28,7 @@ export default function FeaturedProducts() {
       id: 3,
       name: "حقيبة لويس فيتون باغاتيل",
       price: 4700.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a3,
       colors: ["#FFFFFF", "#000000"],
       liked: false,
     },
@@ -33,7 +36,7 @@ export default function FeaturedProducts() {
       id: 4,
       name: "حقيبة غوتشي GG مارمونت",
       price: 2980.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a1,
       colors: ["#F5E6D3", "#000000"],
       liked: false,
     },
@@ -41,7 +44,7 @@ export default function FeaturedProducts() {
       id: 5,
       name: "حقيبة كتف من برادا",
       price: 1750.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a2,
       colors: ["#000000", "#F5E6D3", "#E8E8F0"],
       liked: true,
     },
@@ -49,7 +52,7 @@ export default function FeaturedProducts() {
       id: 6,
       name: "حقيبة لويس فيتون باغاتيل",
       price: 4700.0,
-      image: "/placeholder.svg?height=300&width=300",
+      image: a3,
       colors: ["#FFFFFF", "#000000"],
       liked: false,
     },
@@ -64,10 +67,10 @@ export default function FeaturedProducts() {
           {products.map((product) => (
             <div key={product.id} className="group">
               <div className="relative bg-gray-100 rounded-3xl overflow-hidden mb-4 aspect-square">
-                <img
+                <Image
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full p-3  group-hover:scale-105 transition-transform duration-300"
                 />
                 <Button
                   variant="ghost"
@@ -76,11 +79,13 @@ export default function FeaturedProducts() {
                 >
                   <Heart className={`h-5 w-5 ${product.liked ? "fill-black" : ""}`} />
                 </Button>
-              </div>
 
-              <div className="bg-white rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
+                 <div className="absolute bottom-3 left-[100px] bg-white rounded-2xl p-4">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex flex-col justify-center">
                   <h3 className="text-sm md:text-base font-medium text-right flex-1">{product.name}</h3>
+                  <p className="text-lg md:text-xl font-bold text-right">${product.price.toFixed(2)}</p>
+                  </div>
                   <div className="flex gap-1">
                     {product.colors.map((color, index) => (
                       <button
@@ -92,8 +97,11 @@ export default function FeaturedProducts() {
                     ))}
                   </div>
                 </div>
-                <p className="text-lg md:text-xl font-bold text-right">${product.price.toFixed(2)}</p>
+                
               </div>
+              </div>
+
+             
             </div>
           ))}
         </div>

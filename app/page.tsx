@@ -1,11 +1,11 @@
-import Header from "@/components/header"
-import HeroSection from "@/components/hero-section"
-import PromoSection from "@/components/promo-section"
-import CategorySection from "@/components/category-section"
-import FeaturedProducts from "@/components/featured-products"
-import FeaturesSection from "@/components/features-section"
-import AppDownloadSection from "@/components/app-download-section"
-import Footer from "@/components/footer"
+import Header from "@/components/1-header"
+import HeroSection from "@/components/2-hero-section"
+import PromoSection from "@/components/3-promo-section"
+import CategorySection from "@/components/4-category-section"
+import FeaturedProducts from "@/components/5-featured-products"
+import FeaturesSection from "@/components/6-features-section"
+import AppDownloadSection from "@/components/7-app-download-section"
+import Footer from "@/components/8-footer"
 
 export default function Home() {
   return (

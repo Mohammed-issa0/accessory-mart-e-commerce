@@ -16,11 +16,11 @@ export default function CategorySection() {
         </div>
 
         {/* First Row */}
-        <div className="grid grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="grid grid-cols-3 gap-4 ">
           {categories.map((category, index) => (
             <button
               key={`row1-${index}`}
-              className="flex flex-col items-center gap-3 p-6 md:p-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors aspect-square"
+              className="flex flex-col items-center gap-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
             >
               <div className="text-4xl md:text-5xl">
                 {index === 0 && (

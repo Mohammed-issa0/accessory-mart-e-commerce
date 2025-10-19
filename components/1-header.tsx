@@ -4,24 +4,42 @@ import { Input } from "@/components/ui/input"
 
 export default function Header() {
   return (
-    <header className="border-b bg-white">
+    <header className=" bg-white fixed top-0 left-0 w-full z-50">
       {/* Top Navigation */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Left: Language Switcher */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-8 px-3 text-sm">
-              EN
-            </Button>
-            <Button variant="default" size="sm" className="h-8 px-3 text-sm bg-black text-white">
-              AR
-            </Button>
-          </div>
+
+           {/* Menu Items */}
+            <nav className="hidden md:flex items-center gap-6 text-sm">
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                الرئيسية
+              </a>
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                من نحن
+              </a>
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                تسوق
+              </a>
+            </nav>
+          
 
           {/* Center: Logo */}
           <div className="flex-1 text-center">
-            <h1 className="text-xl md:text-2xl font-bold tracking-wider">ACCESSORY MART</h1>
+            <h1 className="text-[14px] sm:text-lg md:text-2xl font-bold tracking-wider">ACCESSORY MART</h1>
           </div>
+
+           {/* Menu Items */}
+            <nav className="hidden md:flex items-center gap-6 text-sm pl-6">
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                المدونة 
+              </a>
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                تواصل
+              </a>
+              <a href="#" className="hover:text-gray-600 transition-colors">
+                الاسئلة
+              </a>
+            </nav>
 
           {/* Right: Icons */}
           <div className="flex items-center gap-2">
@@ -35,6 +53,16 @@ export default function Header() {
               <Menu className="h-5 w-5" />
             </Button>
           </div>
+
+          {/* Left: Language Switcher */}
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="h-8 px-3 text-sm">
+              EN
+            </Button>
+            <Button variant="default" size="sm" className="h-8 px-3 text-sm bg-black text-white">
+              AR
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -42,21 +70,10 @@ export default function Header() {
       <div className="border-t">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            {/* Menu Items */}
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <a href="#" className="hover:text-gray-600 transition-colors">
-                الرئيسية
-              </a>
-              <a href="#" className="hover:text-gray-600 transition-colors">
-                من نحن
-              </a>
-              <a href="#" className="hover:text-gray-600 transition-colors">
-                تسوق
-              </a>
-            </nav>
+            
 
             {/* Dropdowns */}
-            <div className="flex items-center gap-4 text-sm mr-auto">
+            <div className="flex items-center gap-4 text-sm">
               <button className="flex items-center gap-1 hover:text-gray-600 transition-colors">
                 <span>الفئات</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
