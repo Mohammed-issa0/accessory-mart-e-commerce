@@ -6,12 +6,14 @@ import { ArrowRight } from "lucide-react"
 import mainphoto from "@/public/imgs/mainphoto.png"
 import main2 from "@/public/imgs/main2.jpg"
 import main3 from "@/public/imgs/main3.jpg"
+import wo2 from "@/public/imgs/wo2.jpg"
+import wo3 from "@/public/imgs/wo3.jpg"
 import Image from "next/image"
-
+import Link from "next/link"
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  const slides = [mainphoto, main2, main3]
+  const slides = [mainphoto, main2, wo2, wo3]
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -51,6 +53,7 @@ export default function HeroSection() {
               <p className="text-lg md:text-xl mb-8 text-gray-200 text-balance">
                 اختاري من مجموعتنا المميزة من الاكسسوارات لتضيفي لمسة من الأناقة والثقة إلى كل يوم.
               </p>
+              <Link href="/products">
               <Button
                 size="lg"
                 className="bg-white cursor-pointer text-black hover:bg-gray-100 text-base md:text-lg px-8 py-6 rounded-sm"
@@ -58,6 +61,7 @@ export default function HeroSection() {
                 <ArrowRight className="ml-2 p-1 size-7 bg-black text-white rounded-sm" />
                 استكشف المنتجات
               </Button>
+              </Link>
             </div>
           </div>
 
