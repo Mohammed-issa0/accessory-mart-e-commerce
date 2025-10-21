@@ -1,13 +1,41 @@
-export default function SuccessMetrics() {
+import { createClient } from "@/lib/supabase/server"
+
+export default async function SuccessMetrics() {
+  const supabase = await createClient()
+
+  const { count: totalOrders } = await supabase.from("orders").select("*", { count: "exact", head: true })
+
+  const { count: completedOrders } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "completed")
+
+  const { count: shippingOrders } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "shipping")
+
+  const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
+
+  const { count: availableProducts } = await supabase
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("is_available", true)
+
+  // Calculate percentages
+  const completionRate = totalOrders ? Math.round((completedOrders! / totalOrders) * 100) : 0
+  const shippingRate = totalOrders ? Math.round((shippingOrders! / totalOrders) * 100) : 0
+  const availabilityRate = totalProducts ? Math.round((availableProducts! / totalProducts) * 100) : 0
+
   const metrics = [
-    { title: "تحقيق الأرباح", percentage: 23 },
-    { title: "إتمام البيع", percentage: 67 },
-    { title: "الشحن والتوصيل", percentage: 45 },
+    { title: "إتمام الطلبات", percentage: completionRate },
+    { title: "قيد التوصيل", percentage: shippingRate },
+    { title: "المنتجات المتاحة", percentage: availabilityRate },
   ]
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-lg font-bold text-gray-900 mb-6">ابدأ رحلة نجاح متجرك</h2>
+      <h2 className="text-lg font-bold text-gray-900 mb-6">إحصائيات المتجر</h2>
       <div className="space-y-4">
         {metrics.map((metric) => (
           <div key={metric.title}>

@@ -14,8 +14,11 @@ export default async function AdminDashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Get admin info
-  const { data: admin } = await supabase.from("admins").select("full_name").eq("user_id", user?.id).single()
+  let admin = null
+  if (user?.id) {
+    const { data: adminData } = await supabase.from("admins").select("full_name").eq("user_id", user.id).single()
+    admin = adminData
+  }
 
   // Get statistics
   const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
@@ -32,7 +35,7 @@ export default async function AdminDashboardPage() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-white rounded-lg p-6 border border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">مرحباً بك {admin?.full_name} 👋</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">مرحباً بك {admin?.full_name || "في لوحة التحكم"} 👋</h1>
         <p className="text-gray-600">إليك ملخص أداء متجرك اليوم</p>
       </div>
 

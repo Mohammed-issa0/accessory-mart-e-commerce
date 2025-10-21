@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, ShoppingCart, User, Menu, LogOut, Settings, Package } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, LogOut, Settings, Package, LayoutDashboard, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
@@ -13,26 +13,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useCart } from "@/lib/context/cart-context"
 
 export default function Header() {
   const [user, setUser] = useState<any>(null)
-  const [cartCount, setCartCount] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
   const supabase = createBrowserClient()
+  const { totalItems } = useCart()
 
   useEffect(() => {
     if (!supabase) return
 
     checkUser()
 
-    // Subscribe to auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        loadCartCount(session.user.id)
+        checkAdminStatus(session.user.id)
       } else {
-        setCartCount(0)
+        setIsAdmin(false)
       }
     })
 
@@ -47,16 +48,8 @@ export default function Header() {
     } = await supabase.auth.getUser()
     setUser(user)
     if (user) {
-      loadCartCount(user.id)
+      checkAdminStatus(user.id)
     }
-  }
-
-  const loadCartCount = async (userId: string) => {
-    if (!supabase) return
-
-    const { count } = await supabase.from("cart").select("*", { count: "exact", head: true }).eq("user_id", userId)
-
-    setCartCount(count || 0)
   }
 
   const handleSignOut = async () => {
@@ -64,7 +57,15 @@ export default function Header() {
 
     await supabase.auth.signOut()
     setUser(null)
-    setCartCount(0)
+    setIsAdmin(false)
+  }
+
+  const checkAdminStatus = async (userId: string) => {
+    if (!supabase) return
+
+    const { data: userData } = await supabase.from("users").select("is_admin").eq("id", userId).single()
+
+    setIsAdmin(userData?.is_admin || false)
   }
 
   return (
@@ -77,12 +78,19 @@ export default function Header() {
             <Link href="/" className="hover:text-gray-600 transition-colors">
               الرئيسية
             </Link>
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            <Link href="/about" className="hover:text-gray-600 transition-colors">
               من نحن
-            </a>
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            </Link>
+            <Link href="/products" className="hover:text-gray-600 transition-colors">
               تسوق
-            </a>
+            </Link>
+            <Link
+              href="/admin"
+              className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>لوحة التحكم</span>
+            </Link>
           </nav>
 
           {/* Center: Logo */}
@@ -94,25 +102,37 @@ export default function Header() {
 
           {/* Menu Items */}
           <nav className="hidden md:flex items-center gap-6 text-sm pl-6">
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            <Link href="/blog" className="hover:text-gray-600 transition-colors">
               المدونة
-            </a>
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            </Link>
+            <Link href="/contact" className="hover:text-gray-600 transition-colors">
               تواصل
-            </a>
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            </Link>
+            <Link href="/faq" className="hover:text-gray-600 transition-colors">
               الاسئلة
-            </a>
+            </Link>
           </nav>
 
           {/* Right: Icons */}
           <div className="flex items-center gap-2">
+            <Link href="/admin" className="md:hidden">
+              <Button variant="default" size="icon" className="h-9 w-9">
+                <LayoutDashboard className="h-5 w-5" />
+              </Button>
+            </Link>
+
+            <Link href="/wishlist">
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Heart className="h-5 w-5" />
+              </Button>
+            </Link>
+
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                 <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
+                {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
+                    {totalItems}
                   </span>
                 )}
               </Button>
@@ -129,8 +149,22 @@ export default function Header() {
                   <div className="px-2 py-1.5 text-sm">
                     <p className="font-semibold">{user.user_metadata?.full_name || "المستخدم"}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
+                    {isAdmin && <p className="text-xs text-primary font-semibold mt-1">مدير النظام</p>}
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin" className="cursor-pointer">
+                      <LayoutDashboard className="ml-2 h-4 w-4" />
+                      لوحة التحكم
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/wishlist" className="cursor-pointer">
+                      <Heart className="ml-2 h-4 w-4" />
+                      المفضلة
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/settings" className="cursor-pointer">
                       <Settings className="ml-2 h-4 w-4" />

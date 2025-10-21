@@ -5,12 +5,19 @@ import { Input } from "@/components/ui/input"
 import ProductsTable from "@/components/admin/products-table"
 import ProductsStats from "@/components/admin/products-stats"
 import ProductsChart from "@/components/admin/products-chart"
+import CategoryFilters from "@/components/admin/category-filters"
 import Link from "next/link"
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: { category?: string; showAll?: string }
+}) {
   const supabase = await createClient()
+  const categoryId = searchParams.category
+  const showAll = searchParams.showAll === "true"
 
-  const { data: products } = await supabase
+  let productsQuery = supabase
     .from("products")
     .select(`
       *,
@@ -18,6 +25,24 @@ export default async function ProductsPage() {
       product_images(image_url)
     `)
     .order("created_at", { ascending: false })
+
+  if (categoryId) {
+    productsQuery = productsQuery.eq("category_id", categoryId)
+  }
+
+  const { data: products } = await productsQuery
+
+  const { data: categories } = await supabase.from("categories").select("id, name_ar").eq("is_active", true)
+
+  const categoriesWithCounts = await Promise.all(
+    (categories || []).map(async (category) => {
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("category_id", category.id)
+      return { ...category, count: count || 0 }
+    }),
+  )
 
   const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
 
@@ -54,29 +79,11 @@ export default async function ProductsPage() {
           </Link>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="default" size="sm">
-            الكل
-            <span className="mr-2 bg-white text-black px-2 py-0.5 rounded text-xs">{totalProducts || 156}</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            المنتجات الفردية
-            <span className="mr-2 bg-gray-100 px-2 py-0.5 rounded text-xs">50</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            المنتجات المجمعة
-            <span className="mr-2 bg-gray-100 px-2 py-0.5 rounded text-xs">40</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            قسيمة
-            <span className="mr-2 bg-gray-100 px-2 py-0.5 rounded text-xs">16</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            الطلبات الرقمية
-            <span className="mr-2 bg-gray-100 px-2 py-0.5 rounded text-xs">50</span>
-          </Button>
-        </div>
+        <CategoryFilters
+          totalProducts={totalProducts || 0}
+          categories={categoriesWithCounts}
+          selectedCategory={categoryId}
+        />
       </div>
 
       {/* Stats */}
@@ -102,13 +109,15 @@ export default async function ProductsPage() {
           </Button>
         </div>
 
-        {/* Products Table */}
-        <ProductsTable products={products || []} />
+        <ProductsTable products={products || []} showAll={showAll} />
 
-        {/* Export Button */}
-        <div className="mt-6 flex justify-center">
-          <Button variant="outline">جميع المنتجات</Button>
-        </div>
+        {!showAll && (products?.length || 0) > 10 && (
+          <div className="mt-6 flex justify-center">
+            <Link href="/admin/products?showAll=true">
+              <Button variant="outline">عرض جميع المنتجات ({totalProducts})</Button>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Charts */}

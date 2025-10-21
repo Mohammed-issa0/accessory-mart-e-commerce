@@ -3,13 +3,15 @@ import type { Metadata } from "next"
 import { Vazirmatn } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import { CartProvider } from "@/lib/context/cart-context"
+import { WishlistProvider } from "@/lib/context/wishlist-context"
 
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] })
 
 export const metadata: Metadata = {
   title: "Accessory Mart - متجر الاكسسوارات",
   description: "متجر الاكسسوارات - الأناقة في كل التفاصيل",
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -20,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={`${vazirmatn.className} font-sans antialiased`}>
-        {children}
+        <CartProvider>
+          <WishlistProvider>{children}</WishlistProvider>
+        </CartProvider>
         <Analytics />
       </body>
     </html>

@@ -11,7 +11,7 @@ interface AdminHeaderProps {
   admin: {
     full_name: string
     email: string
-  }
+  } | null
 }
 
 export default function AdminHeader({ admin }: AdminHeaderProps) {
@@ -25,6 +25,10 @@ export default function AdminHeader({ admin }: AdminHeaderProps) {
     router.push("/admin/login")
     router.refresh()
   }
+
+  const displayName = admin?.full_name || "زائر"
+  const displayEmail = admin?.email || "غير مسجل"
+  const displayInitial = admin?.full_name?.charAt(0) || "Z"
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -44,17 +48,19 @@ export default function AdminHeader({ admin }: AdminHeaderProps) {
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">{admin.full_name}</p>
-              <p className="text-xs text-gray-500">{admin.email}</p>
+              <p className="text-sm font-medium text-gray-900">{displayName}</p>
+              <p className="text-xs text-gray-500">{displayEmail}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold">
-              {admin.full_name.charAt(0)}
+              {displayInitial}
             </div>
           </div>
 
-          <Button variant="ghost" size="icon" onClick={handleLogout} disabled={loading} title="تسجيل الخروج">
-            <LogOut className="w-5 h-5" />
-          </Button>
+          {admin && (
+            <Button variant="ghost" size="icon" onClick={handleLogout} disabled={loading} title="تسجيل الخروج">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
     </header>
