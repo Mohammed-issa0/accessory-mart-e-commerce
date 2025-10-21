@@ -7,16 +7,9 @@ export async function updateSession(request: NextRequest) {
   })
 
   const supabaseUrl = process.env.SUPABASE_SUPABASE_NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+  const supabaseAnonKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // If no credentials and accessing admin, redirect to home
-    if (request.nextUrl.pathname.startsWith("/admin")) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/"
-      return NextResponse.redirect(url)
-    }
-    // For public routes, continue without Supabase
     return supabaseResponse
   }
 
@@ -39,16 +32,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Check if accessing admin routes
   if (request.nextUrl.pathname.startsWith("/admin") && request.nextUrl.pathname !== "/admin/login") {
     if (!user) {
-      // Redirect to admin login if not authenticated
       const url = request.nextUrl.clone()
       url.pathname = "/admin/login"
       return NextResponse.redirect(url)
     }
 
-    // Check if user is admin
     const { data: admin } = await supabase
       .from("admins")
       .select("*")
@@ -57,7 +47,6 @@ export async function updateSession(request: NextRequest) {
       .single()
 
     if (!admin) {
-      // Redirect to home if not admin
       const url = request.nextUrl.clone()
       url.pathname = "/"
       return NextResponse.redirect(url)
