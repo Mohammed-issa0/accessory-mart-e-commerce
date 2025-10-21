@@ -1,0 +1,62 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Bell, Search, LogOut } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+interface AdminHeaderProps {
+  admin: {
+    full_name: string
+    email: string
+  }
+}
+
+export default function AdminHeader({ admin }: AdminHeaderProps) {
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    setLoading(true)
+    await supabase.auth.signOut()
+    router.push("/admin/login")
+    router.refresh()
+  }
+
+  return (
+    <header className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4 flex-1 max-w-xl">
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input type="search" placeholder="بحث..." className="pr-10" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-900">{admin.full_name}</p>
+              <p className="text-xs text-gray-500">{admin.email}</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold">
+              {admin.full_name.charAt(0)}
+            </div>
+          </div>
+
+          <Button variant="ghost" size="icon" onClick={handleLogout} disabled={loading} title="تسجيل الخروج">
+            <LogOut className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+    </header>
+  )
+}
