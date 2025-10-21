@@ -9,6 +9,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { useToast } from "@/hooks/use-toast"
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart()
@@ -23,6 +25,7 @@ export default function CartPage() {
     notes: "",
   })
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleCheckout = async () => {
     if (cart.length === 0) return
@@ -34,7 +37,11 @@ export default function CartPage() {
       !customerInfo.address ||
       !customerInfo.city
     ) {
-      alert("يرجى ملء جميع الحقول المطلوبة")
+      toast({
+        title: "خطأ",
+        description: "يرجى ملء جميع الحقول المطلوبة",
+        variant: "destructive",
+      })
       return
     }
 
@@ -69,11 +76,18 @@ export default function CartPage() {
       }
 
       clearCart()
-      alert(`تم إنشاء طلبك بنجاح! رقم الطلب: ${data.orderNumber}`)
-      router.push("/")
+      toast({
+        title: "تم إنشاء الطلب بنجاح",
+        description: `رقم الطلب: ${data.orderNumber}`,
+      })
+      router.push("/orders")
     } catch (error: any) {
       console.error("Error creating order:", error)
-      alert(`حدث خطأ: ${error.message}`)
+      toast({
+        title: "خطأ",
+        description: error.message,
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -85,21 +99,45 @@ export default function CartPage() {
 
       <main className="flex-1 pt-32 pb-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8">سلة التسوق</h1>
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-bold mb-8"
+          >
+            سلة التسوق
+          </motion.h1>
 
           {cart.length === 0 ? (
-            <div className="text-center py-16">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-center py-16"
+            >
               <p className="text-gray-600 text-lg mb-6">سلة التسوق فارغة</p>
               <Link href="/products">
                 <Button>تصفح المنتجات</Button>
               </Link>
-            </div>
+            </motion.div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Cart Items */}
-              <div className="lg:col-span-2 space-y-4">
-                {cart.map((item) => (
-                  <div key={item.id} className="bg-white border rounded-lg p-4 flex gap-4">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="lg:col-span-2 space-y-4"
+              >
+                {cart.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="bg-white border rounded-lg p-4 flex gap-4"
+                  >
                     <div className="relative w-24 h-24 flex-shrink-0">
                       <Image
                         src={item.image || "/placeholder.svg"}
@@ -114,37 +152,58 @@ export default function CartPage() {
                       <p className="text-lg font-bold text-primary">{item.price.toFixed(2)} ريال</p>
 
                       <div className="flex items-center gap-2 mt-4">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
                         <span className="w-12 text-center font-semibold">{item.quantity}</span>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
                       </div>
                     </div>
 
                     <div className="flex flex-col items-end justify-between">
-                      <Button size="icon" variant="ghost" onClick={() => removeFromCart(item.id)}>
-                        <Trash2 className="h-5 w-5 text-destructive" />
-                      </Button>
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            removeFromCart(item.id)
+                            toast({
+                              title: "تم الحذف من السلة",
+                              description: `تم حذف ${item.name} من سلة التسوق`,
+                            })
+                          }}
+                        >
+                          <Trash2 className="h-5 w-5 text-destructive" />
+                        </Button>
+                      </motion.div>
                       <p className="font-bold text-lg">{(item.price * item.quantity).toFixed(2)} ريال</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Order Summary */}
-              <div className="lg:col-span-1">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="lg:col-span-1"
+              >
                 <div className="bg-white border rounded-lg p-6 sticky top-36">
                   <h2 className="text-xl font-bold mb-4">ملخص الطلب</h2>
 
@@ -165,17 +224,26 @@ export default function CartPage() {
 
                   {!showCheckoutForm ? (
                     <>
-                      <Button className="w-full" size="lg" onClick={() => setShowCheckoutForm(true)}>
-                        متابعة إلى الدفع
-                      </Button>
-                      <Link href="/products">
-                        <Button variant="outline" className="w-full mt-3 bg-transparent">
-                          متابعة التسوق
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button className="w-full" size="lg" onClick={() => setShowCheckoutForm(true)}>
+                          متابعة إلى الدفع
                         </Button>
+                      </motion.div>
+                      <Link href="/products">
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button variant="outline" className="w-full mt-3 bg-transparent">
+                            متابعة التسوق
+                          </Button>
+                        </motion.div>
                       </Link>
                     </>
                   ) : (
-                    <div className="space-y-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-4"
+                    >
                       <h3 className="font-semibold text-lg mb-4">معلومات التوصيل</h3>
 
                       <div>
@@ -243,21 +311,25 @@ export default function CartPage() {
                         />
                       </div>
 
-                      <Button className="w-full" size="lg" onClick={handleCheckout} disabled={loading}>
-                        {loading ? "جاري المعالجة..." : "تأكيد الطلب"}
-                      </Button>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button className="w-full" size="lg" onClick={handleCheckout} disabled={loading}>
+                          {loading ? "جاري المعالجة..." : "تأكيد الطلب"}
+                        </Button>
+                      </motion.div>
 
-                      <Button
-                        variant="outline"
-                        className="w-full bg-transparent"
-                        onClick={() => setShowCheckoutForm(false)}
-                      >
-                        رجوع
-                      </Button>
-                    </div>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          variant="outline"
+                          className="w-full bg-transparent"
+                          onClick={() => setShowCheckoutForm(false)}
+                        >
+                          رجوع
+                        </Button>
+                      </motion.div>
+                    </motion.div>
                   )}
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
