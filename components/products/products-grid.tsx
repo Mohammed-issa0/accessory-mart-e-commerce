@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "@/lib/context/cart-context"
 import { useWishlist } from "@/lib/context/wishlist-context"
+import { useToast } from "@/hooks/use-toast"
 
 interface Product {
   id: string
@@ -21,10 +22,15 @@ interface Product {
 export default function ProductsGrid({ products }: { products: Product[] }) {
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
+  const { toast } = useToast()
 
   const toggleWishlist = (product: Product) => {
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id)
+      toast({
+        title: "تم الحذف من المفضلة",
+        description: `تم حذف ${product.name} من المفضلة`,
+      })
     } else {
       addToWishlist({
         id: product.id,
@@ -32,6 +38,10 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
         price: product.price,
         image: product.image,
         slug: product.slug,
+      })
+      toast({
+        title: "تمت الإضافة للمفضلة",
+        description: `تم إضافة ${product.name} إلى المفضلة`,
       })
     }
   }
@@ -42,6 +52,10 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
       name: product.name,
       price: product.price,
       image: product.image,
+    })
+    toast({
+      title: "تمت الإضافة للسلة",
+      description: `تم إضافة ${product.name} إلى سلة التسوق`,
     })
   }
 
