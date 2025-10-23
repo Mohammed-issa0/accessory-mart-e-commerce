@@ -79,10 +79,10 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <div key={product.id} className="group">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div className="relative bg-white rounded-2xl overflow-visible shadow-sm hover:shadow-md transition-shadow pb-16 md:pb-20">
               {/* Product Image */}
               <Link href={`/products/${product.slug}`}>
-                <div className="relative bg-gray-100 aspect-square">
+                <div className="relative bg-[#F5F3F0] aspect-square rounded-t-2xl">
                   <Image
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
@@ -101,7 +101,7 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                   >
                     <Heart
                       className={`h-4 w-4 transition-colors ${
-                        isInWishlist(product.id) ? "fill-red-500 stroke-red-500" : "stroke-black"
+                        isInWishlist(product.id) ? "fill-black stroke-black" : "stroke-black"
                       }`}
                     />
                   </Button>
@@ -118,39 +118,47 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                 </div>
               </Link>
 
-              {/* Product Details */}
-              <div className="p-4">
+              <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl p-4 shadow-lg">
                 {product.category && <p className="text-xs text-gray-500 mb-1">{product.category}</p>}
-                <Link href={`/products/${product.slug}`}>
-                  <h3 className="text-sm font-medium mb-2 hover:text-gray-600 transition-colors line-clamp-2">
-                    {product.name}
-                  </h3>
-                </Link>
 
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-lg font-bold">{product.price.toFixed(2)} ج.س</p>
+                {/* Color circles and product name */}
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  {/* Color circles on the left */}
                   {product.colors.length > 0 && (
                     <div className="flex gap-1">
                       {product.colors.slice(0, 3).map((color, index) => (
                         <div
                           key={index}
-                          className="w-4 h-4 rounded-full border border-gray-300"
+                          className={`w-5 h-5 rounded-full border-2 ${
+                            index === 0 ? "border-gray-800" : "border-gray-300"
+                          }`}
                           style={{ backgroundColor: color }}
                         />
                       ))}
                     </div>
                   )}
+
+                  {/* Product name on the right */}
+                  <Link href={`/products/${product.slug}`} className="flex-1 text-right">
+                    <h3 className="text-sm font-medium hover:text-gray-600 transition-colors line-clamp-1">
+                      {product.name}
+                    </h3>
+                  </Link>
                 </div>
 
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleAddToCart(product)}
-                  disabled={product.stock === 0}
-                >
-                  <ShoppingCart className="w-4 h-4 ml-2" />
-                  {product.stock === 0 ? "نفذت الكمية" : "أضف للسلة"}
-                </Button>
+                {/* Price and cart button */}
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    size="icon"
+                    onClick={() => handleAddToCart(product)}
+                    disabled={product.stock === 0}
+                    className="rounded-full w-9 h-9 bg-black hover:bg-gray-800"
+                  >
+                    <ShoppingCart className="w-4 h-4 text-white" />
+                  </Button>
+
+                  <p className="text-lg font-bold">{product.price.toFixed(2)} ريال</p>
+                </div>
               </div>
             </div>
           </div>

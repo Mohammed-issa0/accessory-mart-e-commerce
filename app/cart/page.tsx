@@ -35,12 +35,11 @@ export default function CartPage() {
   }, [])
 
   const subtotal = totalPrice
-  const tax = subtotal * 0.14 // 14% tax
-  const shipping = 0 // Free shipping
+  const tax = subtotal * 0.14
+  const shipping = 0
   const total = subtotal + tax - discount + shipping
 
   const applyDiscount = () => {
-    // Simple discount logic - you can enhance this
     if (discountCode === "SAVE18") {
       setDiscount(subtotal * 0.18)
       toast({
@@ -90,11 +89,10 @@ export default function CartPage() {
               className="bg-white border border-gray-200 rounded-lg p-4 mb-6 text-center"
             >
               <p className="text-gray-700">
-                يرجى عليه التحويل أدام تم الضغط على "إتمام الطلب" لإكمال عملية الشراء!{" "}
+                يرجى تسجيل الدخول لإكمال عملية الشراء!{" "}
                 <Link href="/auth/login" className="text-primary font-semibold hover:underline">
                   سجل الدخول من هنا
                 </Link>
-                ! يمكنك إنشاء حساب بسهولة!
               </p>
             </motion.div>
           )}
@@ -112,8 +110,7 @@ export default function CartPage() {
               </Link>
             </motion.div>
           ) : (
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Cart Items Table */}
+            <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -121,14 +118,13 @@ export default function CartPage() {
                 className="lg:col-span-2"
               >
                 <div className="bg-white rounded-lg overflow-hidden">
-                  {/* Table Header */}
-                  <div className="bg-gray-800 text-white grid grid-cols-6 gap-4 p-4 text-sm font-medium">
+                  {/* Desktop Table Header */}
+                  <div className="hidden md:grid bg-gray-800 text-white grid-cols-6 gap-4 p-4 text-sm font-medium">
                     <div className="col-span-2 text-right">تفاصيل المنتج</div>
                     <div className="text-center">المجموع الفرعي</div>
                     <div className="text-center">الكمية</div>
                     <div className="text-center">الشحن</div>
                     <div className="text-center">السعر</div>
-                    <div className="text-center">الإجراء</div>
                   </div>
 
                   {/* Cart Items */}
@@ -139,74 +135,125 @@ export default function CartPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="grid grid-cols-6 gap-4 p-4 items-center"
+                        className="p-4"
                       >
-                        {/* Product Details */}
-                        <div className="col-span-2 flex items-center gap-4">
-                          <div className="relative w-20 h-20 flex-shrink-0">
-                            <Image
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.name}
-                              fill
-                              className="object-cover rounded-md"
-                            />
+                        {/* Mobile Layout */}
+                        <div className="md:hidden space-y-4">
+                          <div className="flex gap-4">
+                            <div className="relative w-20 h-20 flex-shrink-0 bg-gray-100 rounded-md">
+                              <Image
+                                src={item.image || "/placeholder.svg"}
+                                alt={item.name}
+                                fill
+                                className="object-contain p-2"
+                              />
+                            </div>
+                            <div className="flex-1 text-right">
+                              <h3 className="font-semibold text-sm mb-1">{item.name}</h3>
+                              <p className="text-lg font-bold text-primary">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </p>
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                removeFromCart(item.id)
+                                toast({
+                                  title: "تم الحذف",
+                                  description: "تم حذف المنتج من السلة",
+                                })
+                              }}
+                              className="h-8 w-8"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="text-right">
-                            <h3 className="font-semibold text-sm">{item.name}</h3>
-                            <p className="text-xs text-gray-500">المقاس: M</p>
-                            <p className="text-xs text-gray-500">اللون: أسود</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8 bg-transparent"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8 bg-transparent"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-600">سعر الوحدة: ${item.price.toFixed(2)}</p>
                           </div>
                         </div>
 
-                        {/* Subtotal */}
-                        <div className="text-center">
-                          <p className="font-semibold">${item.price.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400 line-through">محذوفاً</p>
-                        </div>
+                        {/* Desktop Layout */}
+                        <div className="hidden md:grid grid-cols-6 gap-4 items-center">
+                          <div className="col-span-2 flex items-center gap-4">
+                            <div className="relative w-20 h-20 flex-shrink-0 bg-gray-100 rounded-md">
+                              <Image
+                                src={item.image || "/placeholder.svg"}
+                                alt={item.name}
+                                fill
+                                className="object-contain p-2"
+                              />
+                            </div>
+                            <div className="text-right">
+                              <h3 className="font-semibold text-sm">{item.name}</h3>
+                            </div>
+                          </div>
 
-                        {/* Quantity */}
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8 bg-transparent"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8 bg-transparent"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                        </div>
+                          <div className="text-center">
+                            <p className="font-semibold">${item.price.toFixed(2)}</p>
+                          </div>
 
-                        {/* Shipping */}
-                        <div className="text-center text-sm text-gray-600">محذوفاً</div>
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8 bg-transparent"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8 bg-transparent"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                          </div>
 
-                        {/* Price */}
-                        <div className="text-center font-bold">${(item.price * item.quantity).toFixed(2)}</div>
+                          <div className="text-center text-sm text-gray-600">مجاناً</div>
 
-                        {/* Action */}
-                        <div className="text-center">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              removeFromCart(item.id)
-                              toast({
-                                title: "تم الحذف",
-                                description: "تم حذف المنتج من السلة",
-                              })
-                            }}
-                          >
-                            <Trash2 className="h-5 w-5 text-red-500" />
-                          </Button>
+                          <div className="text-center font-bold">${(item.price * item.quantity).toFixed(2)}</div>
+
+                          <div className="text-center">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                removeFromCart(item.id)
+                                toast({
+                                  title: "تم الحذف",
+                                  description: "تم حذف المنتج من السلة",
+                                })
+                              }}
+                            >
+                              <Trash2 className="h-5 w-5 text-red-500" />
+                            </Button>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
@@ -281,29 +328,16 @@ export default function CartPage() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="SAO"
+                      placeholder="SAVE18"
                       className="flex-1 border rounded-md px-3 py-2 text-right"
                       value={discountCode}
                       onChange={(e) => setDiscountCode(e.target.value)}
                     />
-                    <Button onClick={applyDiscount}>تطبيق الخصومة</Button>
+                    <Button onClick={applyDiscount}>تطبيق</Button>
                   </div>
                 </div>
               </motion.div>
             </div>
-          )}
-
-          {/* Similar Products */}
-          {cart.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-16"
-            >
-              <h2 className="text-2xl font-bold mb-8 text-right">منتجات مشابهة</h2>
-              {/* You can add similar products grid here */}
-            </motion.div>
           )}
         </div>
       </main>

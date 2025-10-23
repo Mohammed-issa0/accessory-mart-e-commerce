@@ -35,7 +35,7 @@ export default function SignupPage() {
       setSuccess(true)
       setTimeout(() => {
         router.push("/auth/login")
-      }, 3000)
+      }, 2000)
     }
   }
 
@@ -68,10 +68,8 @@ export default function SignupPage() {
             className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800"
           >
             <h2 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">تم إنشاء الحساب بنجاح!</h2>
-            <p className="text-green-700 dark:text-green-300 mb-3">تم إرسال رسالة تأكيد إلى بريدك الإلكتروني</p>
-            <p className="text-green-700 dark:text-green-300 text-sm">
-              يرجى فتح البريد والضغط على زر <strong>Confirm</strong> لتفعيل حسابك، ثم يمكنك تسجيل الدخول
-            </p>
+            <p className="text-green-700 dark:text-green-300 mb-3">يمكنك الآن تسجيل الدخول إلى حسابك</p>
+            <p className="text-green-700 dark:text-green-300 text-sm">جاري التحويل إلى صفحة تسجيل الدخول...</p>
           </motion.div>
         </motion.div>
       </div>

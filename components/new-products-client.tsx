@@ -83,112 +83,115 @@ export default function NewProductsClient({ products }: { products: Product[] })
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
+              className="group relative"
             >
-              <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="relative bg-white rounded-2xl md:rounded-3xl overflow-visible shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 pb-16 md:pb-20">
                 {/* New Badge */}
-                <div className="relative">
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
-                    className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full z-10"
-                  >
-                    جديد
-                  </motion.span>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                  className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full z-10"
+                >
+                  جديد
+                </motion.span>
 
-                  {/* Product Image */}
-                  <Link href={`/products/${product.slug}`}>
-                    <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-square overflow-hidden">
-                      <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }} className="w-full h-full">
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={400}
-                          height={400}
-                          className="w-full h-full object-contain p-8"
-                        />
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        whileHover={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0 bg-black/5"
+                {/* Product Image */}
+                <Link href={`/products/${product.slug}`}>
+                  <div className="relative bg-[#F5F3F0] aspect-square overflow-hidden rounded-t-2xl md:rounded-t-3xl">
+                    <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.5 }} className="w-full h-full">
+                      <Image
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        width={400}
+                        height={400}
+                        className="w-full h-full object-contain p-6 md:p-8"
                       />
-                    </div>
-                  </Link>
+                    </motion.div>
+                  </div>
+                </Link>
 
-                  {/* Wishlist Button */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: index * 0.1 + 0.1 }}
+                {/* Wishlist Button */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.1 + 0.1 }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      toggleWishlist(product)
+                    }}
+                    className="absolute top-3 md:top-4 left-4 bg-white hover:bg-gray-50 rounded-full w-7 h-7 md:w-10 md:h-10 shadow-md hover:shadow-lg transition-all duration-300"
                   >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        toggleWishlist(product)
-                      }}
-                      className="absolute top-3 md:top-4 left-4 bg-white hover:bg-gray-50 rounded-full w-7 h-7 md:w-10 md:h-10 shadow-md hover:shadow-lg transition-all duration-300"
+                    <motion.div
+                      animate={isInWishlist(product.id) ? { scale: [1, 1.2, 1] } : {}}
+                      transition={{ duration: 0.3 }}
                     >
-                      <motion.div
-                        animate={isInWishlist(product.id) ? { scale: [1, 1.2, 1] } : {}}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Heart
-                          className={`h-5 w-5 transition-all duration-300 ${
-                            isInWishlist(product.id)
-                              ? "fill-red-500 stroke-red-500"
-                              : "stroke-black hover:stroke-red-500"
-                          }`}
-                        />
-                      </motion.div>
-                    </Button>
-                  </motion.div>
-                </div>
+                      <Heart
+                        className={`h-4 w-4 md:h-5 md:w-5 transition-all duration-300 ${
+                          isInWishlist(product.id) ? "fill-black stroke-black" : "stroke-black hover:fill-black"
+                        }`}
+                      />
+                    </motion.div>
+                  </Button>
+                </motion.div>
 
-                {/* Product Details */}
-                <div className="p-2 md:p-5">
-                  <div className="flex flex-col items-center justify-between gap-3 mb-3">
-                    <Link href={`/products/${product.slug}`}>
-                      <h3 className="text-sm md:text-base font-medium text-right flex-1 hover:text-primary transition-colors">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 + 0.2 }}
+                  className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4 bg-white rounded-2xl md:rounded-3xl p-3 md:p-4 shadow-lg"
+                >
+                  {/* Color circles and product name */}
+                  <div className="flex items-center justify-between gap-4 mb-2">
+                    
+
+                    {/* Product name on the right */}
+                    <Link href={`/products/${product.slug}`} className="flex-1 text-right">
+                      <h3 className="text-xs md:text-sm font-medium hover:text-primary transition-colors line-clamp-1">
                         {product.name}
                       </h3>
                     </Link>
+
+                    {/* Color circles on the left */}
                     {product.colors.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.3, delay: index * 0.1 + 0.15 }}
-                        className="flex gap-1.5"
-                      >
+                      <div className="flex gap-1 md:gap-1.5">
                         {product.colors.slice(0, 3).map((color, colorIndex) => (
                           <motion.button
                             key={colorIndex}
                             whileHover={{ scale: 1.2 }}
-                            className="w-5 h-5 rounded-full border-2 border-gray-300 hover:border-primary transition-all duration-200"
+                            className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 transition-all duration-200 ${
+                              colorIndex === 0 ? "border-gray-800" : "border-gray-300"
+                            }`}
                             style={{ backgroundColor: color }}
                             aria-label={`Color ${colorIndex + 1}`}
                           />
                         ))}
-                      </motion.div>
+                      </div>
                     )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm md:text-xl font-bold text-right">{product.price.toFixed(2)} ج.س</p>
+
+                  {/* Price and cart button */}
+                  <div className="flex items-center justify-between gap-2">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button size="sm" onClick={() => handleAddToCart(product)} className="gap-2 transition-all">
-                        <ShoppingCart className="w-4 h-4" />
-                        أضف للسلة
+                      <Button
+                        size="icon"
+                        onClick={() => handleAddToCart(product)}
+                        className="rounded-full w-8 h-8 md:w-10 md:h-10 bg-black hover:bg-gray-800 transition-all"
+                      >
+                        <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 text-white" />
                       </Button>
                     </motion.div>
+
+                    <p className="text-base md:text-xl font-bold text-right">${product.price.toFixed(2)}</p>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           ))}

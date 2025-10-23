@@ -7,7 +7,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const productId = params.id
     const body = await request.json()
 
-    const { images, ...productData } = body
+    const { images, colors, ...productData } = body
 
     // Update product
     const { error: productError } = await supabase
@@ -47,6 +47,24 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
       if (imagesError) {
         console.error("Error inserting images:", imagesError)
+      }
+    }
+
+    await supabase.from("product_colors").delete().eq("product_id", productId)
+
+    if (colors && colors.length > 0) {
+      const colorRecords = colors.map((color: any) => ({
+        product_id: productId,
+        color_name_ar: color.color_name_ar,
+        color_name_en: color.color_name_en || null,
+        color_hex: color.color_hex,
+        display_order: color.display_order,
+      }))
+
+      const { error: colorsError } = await supabase.from("product_colors").insert(colorRecords)
+
+      if (colorsError) {
+        console.error("Error inserting colors:", colorsError)
       }
     }
 

@@ -63,6 +63,23 @@ export async function POST(request: Request) {
       }
     }
 
+    if (body.colors && body.colors.length > 0 && product) {
+      const colorInserts = body.colors.map((color: any) => ({
+        product_id: product.id,
+        color_name_ar: color.color_name_ar,
+        color_name_en: color.color_name_en || null,
+        color_hex: color.color_hex,
+        display_order: color.display_order,
+      }))
+
+      const { error: colorsError } = await supabase.from("product_colors").insert(colorInserts)
+
+      if (colorsError) {
+        console.error("[v0] Colors insert error:", colorsError)
+        // Product was created but colors failed - still return success
+      }
+    }
+
     return NextResponse.json({ success: true, product })
   } catch (error) {
     console.error("[v0] API error:", error)

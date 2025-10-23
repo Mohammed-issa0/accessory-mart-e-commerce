@@ -108,7 +108,7 @@ export default function CustomerDetailsModal({ customer, onClose }: CustomerDeta
                             <span className="text-sm text-gray-900">{item.product_name}</span>
                           </div>
                         </td>
-                        <td className="py-3 text-sm text-gray-900">{item.price} ج.س</td>
+                        <td className="py-3 text-sm text-gray-900">{item.price} ريال</td>
                         <td className="py-3 text-sm text-gray-900">{item.quantity}</td>
                         <td className="py-3 text-sm text-gray-600">
                           {new Date(orders[0].created_at).toLocaleDateString("ar-SA")}
@@ -132,7 +132,7 @@ export default function CustomerDetailsModal({ customer, onClose }: CustomerDeta
                 </div>
                 <div className="flex items-center justify-between text-base font-bold">
                   <span className="text-gray-900">المجموع الكلي:</span>
-                  <span className="text-gray-900">{totalAmount.toFixed(2)} ج.س</span>
+                  <span className="text-gray-900">{totalAmount.toFixed(2)} ريال</span>
                 </div>
               </div>
 

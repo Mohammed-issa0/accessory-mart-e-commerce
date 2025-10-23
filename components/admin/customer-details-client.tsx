@@ -316,7 +316,7 @@ export default function CustomerDetailsClient({ customer, orders }: Props) {
       {/* Customer Notes */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">ملاحظات العميل</h2>
-        <p className="text-sm text-gray-600 mb-4">ملاحظات تساعد فريقك لفهم وتلبية احتياجات العميل بشكل أفضل</p>
+        <p className="text-sm text-gray-600 mb-4">ملاحظات تساعد فري��ك لفهم وتلبية احتياجات العميل بشكل أفضل</p>
 
         <div className="space-y-4">
           <Input placeholder="أضف ملاحظة جديدة..." />

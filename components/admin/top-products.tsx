@@ -37,7 +37,7 @@ export default async function TopProducts() {
               <p className="text-sm font-medium text-gray-900">{product.name_ar}</p>
               <p className="text-xs text-gray-500">{product.sales_count || 0} مبيعة</p>
             </div>
-            <p className="text-sm font-bold text-gray-900">{product.price} ج.س</p>
+            <p className="text-sm font-bold text-gray-900">{product.price} ريال</p>
           </div>
         ))}
       </div>

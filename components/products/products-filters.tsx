@@ -19,6 +19,19 @@ export default function ProductsFilters({ categories }: { categories: Category[]
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "")
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "")
 
+  const colorOptions = [
+    { name: "أسود", hex: "#000000" },
+    { name: "أبيض", hex: "#FFFFFF" },
+    { name: "بيج", hex: "#D4B896" },
+    { name: "أزرق", hex: "#A8C5E0" },
+    { name: "أحمر", hex: "#DC143C" },
+    { name: "أخضر", hex: "#228B22" },
+    { name: "بني", hex: "#8B4513" },
+    { name: "رمادي", hex: "#808080" },
+    { name: "وردي", hex: "#FFC0CB" },
+    { name: "أصفر", hex: "#FFD700" },
+  ]
+
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     if (value) {
@@ -86,13 +99,33 @@ export default function ProductsFilters({ categories }: { categories: Category[]
         </div>
       </div>
 
+      <div className="mb-6">
+        <h3 className="font-bold mb-3">الألوان</h3>
+        <div className="grid grid-cols-5 gap-2">
+          {colorOptions.map((color) => (
+            <button
+              key={color.hex}
+              onClick={() => updateFilter("color", color.hex)}
+              className={`w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${
+                searchParams.get("color") === color.hex
+                  ? "border-primary ring-2 ring-primary ring-offset-2"
+                  : "border-gray-300"
+              }`}
+              style={{ backgroundColor: color.hex }}
+              title={color.name}
+              aria-label={color.name}
+            />
+          ))}
+        </div>
+      </div>
+
       {/* Price Range */}
       <div className="mb-6">
         <h3 className="font-bold mb-3">نطاق السعر</h3>
         <div className="space-y-3">
           <div>
             <Label htmlFor="minPrice" className="text-sm">
-              من (ج.س)
+              من (ريال)
             </Label>
             <Input
               id="minPrice"
@@ -105,7 +138,7 @@ export default function ProductsFilters({ categories }: { categories: Category[]
           </div>
           <div>
             <Label htmlFor="maxPrice" className="text-sm">
-              إلى (ج.س)
+              إلى (ريال)
             </Label>
             <Input
               id="maxPrice"

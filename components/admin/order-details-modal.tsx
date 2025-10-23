@@ -135,9 +135,9 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
                           <span className="text-sm text-gray-900">{item.product_name}</span>
                         </div>
                       </td>
-                      <td className="py-3 text-sm text-gray-900">{item.price} ج.س</td>
+                      <td className="py-3 text-sm text-gray-900">{item.price} ريال</td>
                       <td className="py-3 text-sm text-gray-900">{item.quantity}</td>
-                      <td className="py-3 text-sm text-gray-900">{item.total} ج.س</td>
+                      <td className="py-3 text-sm text-gray-900">{item.total} ريال</td>
                       <td className="py-3">
                         <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                           تم التوصيل
@@ -154,15 +154,15 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
           <div className="border-t border-gray-200 pt-4 space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">المجموع الفرعي:</span>
-              <span className="text-gray-900">{order.subtotal} ج.س</span>
+              <span className="text-gray-900">{order.subtotal} ريال</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">الضريبة (15%):</span>
-              <span className="text-gray-900">{order.tax} ج.س</span>
+              <span className="text-gray-900">{order.tax} ريال</span>
             </div>
             <div className="flex items-center justify-between text-base font-bold border-t border-gray-200 pt-2">
               <span className="text-gray-900">المجموع النهائي:</span>
-              <span className="text-gray-900">{order.total} ج.س</span>
+              <span className="text-gray-900">{order.total} ريال</span>
             </div>
           </div>
 

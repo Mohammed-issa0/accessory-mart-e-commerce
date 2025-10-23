@@ -90,19 +90,7 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
           {/* Product Title */}
           <h1 className="text-3xl font-bold mb-4">{product.name_ar}</h1>
 
-          {/* Rating */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-5 w-5 ${star <= 3 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                />
-              ))}
-            </div>
-            <span className="text-sm text-gray-600">3.5</span>
-            <span className="text-sm text-gray-400">(120 تقييم)</span>
-          </div>
+          
 
           {/* Size Selection */}
           <div className="mb-6">

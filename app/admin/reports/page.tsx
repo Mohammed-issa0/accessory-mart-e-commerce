@@ -73,7 +73,7 @@ export default async function ReportsPage() {
             <DollarSign className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentMonthRevenue.toLocaleString("ar-SA")} ج.س</div>
+            <div className="text-2xl font-bold">{currentMonthRevenue.toLocaleString("ar-SA")} ريال</div>
             <p className={`text-xs mt-1 ${revenueGrowth >= 0 ? "text-green-600" : "text-red-600"}`}>
               {revenueGrowth >= 0 ? "+" : ""}
               {revenueGrowth.toFixed(1)}% عن الشهر الماضي

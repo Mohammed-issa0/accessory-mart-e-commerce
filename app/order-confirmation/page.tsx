@@ -141,7 +141,7 @@ export default function OrderConfirmationPage() {
                 {/* Total */}
                 <div className="border-t pt-4 flex justify-between items-center">
                   <span className="font-bold text-lg">المجموع الكلي</span>
-                  <span className="font-bold text-lg text-primary">{orderData?.total} ج.س</span>
+                  <span className="font-bold text-lg text-primary">{orderData?.total} ريال</span>
                 </div>
               </div>
             </motion.div>

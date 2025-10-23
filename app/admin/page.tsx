@@ -46,7 +46,7 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardStats
           title="الأرباح"
-          value={`${totalRevenue.toLocaleString("ar-SA")} ج.س`}
+          value={`${totalRevenue.toLocaleString("ar-SA")} ريال`}
           subtitle="عرض التفاصيل"
           icon={TrendingUp}
           trend="up"

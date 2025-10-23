@@ -105,7 +105,7 @@ export default function WishlistPage() {
                     <Link href={`/products/${item.slug}`}>
                       <h3 className="font-medium mb-2 hover:text-gray-600 transition-colors">{item.name}</h3>
                     </Link>
-                    <p className="text-lg font-bold mb-4">{item.price.toFixed(2)} ج.س</p>
+                    <p className="text-lg font-bold mb-4">{item.price.toFixed(2)} ريال</p>
 
                     <div className="flex gap-2">
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">

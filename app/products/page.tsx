@@ -7,7 +7,14 @@ import ProductsFilters from "@/components/products/products-filters"
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; minPrice?: string; maxPrice?: string; sort?: string; search?: string }
+  searchParams: {
+    category?: string
+    minPrice?: string
+    maxPrice?: string
+    sort?: string
+    search?: string
+    color?: string
+  }
 }) {
   const supabase = await createClient()
 
@@ -72,7 +79,7 @@ export default async function ProductsPage({
 
   const { data: products } = await query
 
-  const formattedProducts =
+  let formattedProducts =
     products?.map((product) => ({
       id: product.id,
       name: product.name_ar,
@@ -86,6 +93,12 @@ export default async function ProductsPage({
       colors: product.product_colors?.map((c: any) => c.color_hex) || [],
       category: product.category?.name_ar || "",
     })) || []
+
+  if (searchParams.color) {
+    formattedProducts = formattedProducts.filter((product) =>
+      product.colors.some((color) => color.toLowerCase() === searchParams.color?.toLowerCase()),
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

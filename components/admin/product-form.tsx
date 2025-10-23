@@ -9,12 +9,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload, X, ImageIcon } from "lucide-react"
+import { Upload, X, ImageIcon, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
 
 interface Category {
   id: string
   name_ar: string
+}
+
+interface Color {
+  color_name_ar: string
+  color_name_en: string
+  color_hex: string
 }
 
 interface ProductFormProps {
@@ -27,6 +33,13 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [images, setImages] = useState<{ url: string; file?: File }[]>(
     product?.product_images?.map((img: any) => ({ url: img.image_url })) || [],
+  )
+  const [colors, setColors] = useState<Color[]>(
+    product?.product_colors?.map((c: any) => ({
+      color_name_ar: c.color_name_ar,
+      color_name_en: c.color_name_en || "",
+      color_hex: c.color_hex,
+    })) || [],
   )
   const [formData, setFormData] = useState({
     name_ar: product?.name_ar || "",
@@ -78,6 +91,20 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     setImages((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const addColor = () => {
+    setColors([...colors, { color_name_ar: "", color_name_en: "", color_hex: "#000000" }])
+  }
+
+  const updateColor = (index: number, field: keyof Color, value: string) => {
+    const newColors = [...colors]
+    newColors[index][field] = value
+    setColors(newColors)
+  }
+
+  const removeColor = (index: number) => {
+    setColors(colors.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -101,6 +128,10 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             url: img.url,
             display_order: index,
             is_primary: index === 0,
+          })),
+          colors: colors.map((color, index) => ({
+            ...color,
+            display_order: index,
           })),
         }),
       })
@@ -292,6 +323,77 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             </>
           )}
         </label>
+      </div>
+
+      {/* Product Colors */}
+      <div className="bg-white rounded-lg p-6 border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold text-gray-900">ألوان المنتج</h2>
+          <Button type="button" onClick={addColor} size="sm" variant="outline">
+            <Plus className="w-4 h-4 ml-2" />
+            إضافة لون
+          </Button>
+        </div>
+
+        {colors.length > 0 ? (
+          <div className="space-y-4">
+            {colors.map((color, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+                <div className="flex-1 grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor={`color_name_ar_${index}`}>اسم اللون (عربي)</Label>
+                    <Input
+                      id={`color_name_ar_${index}`}
+                      value={color.color_name_ar}
+                      onChange={(e) => updateColor(index, "color_name_ar", e.target.value)}
+                      placeholder="مثال: أسود"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`color_name_en_${index}`}>اسم اللون (إنجليزي)</Label>
+                    <Input
+                      id={`color_name_en_${index}`}
+                      value={color.color_name_en}
+                      onChange={(e) => updateColor(index, "color_name_en", e.target.value)}
+                      placeholder="Example: Black"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`color_hex_${index}`}>كود اللون</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id={`color_hex_${index}`}
+                        type="color"
+                        value={color.color_hex}
+                        onChange={(e) => updateColor(index, "color_hex", e.target.value)}
+                        className="w-16 h-9 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={color.color_hex}
+                        onChange={(e) => updateColor(index, "color_hex", e.target.value)}
+                        placeholder="#000000"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => removeColor(index)}
+                  size="icon"
+                  variant="ghost"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 text-center py-8">
+            لم يتم إضافة ألوان بعد. اضغط على "إضافة لون" لإضافة لون جديد
+          </p>
+        )}
       </div>
 
       {/* Product Description */}
