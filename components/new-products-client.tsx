@@ -75,7 +75,7 @@ export default function NewProductsClient({ products }: { products: Product[] })
           <p className="text-gray-600">آخر المنتجات المضافة إلى متجرنا</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-6">
           {products.map((product, index) => (
             <motion.div
               key={product.id}
@@ -133,7 +133,7 @@ export default function NewProductsClient({ products }: { products: Product[] })
                         e.preventDefault()
                         toggleWishlist(product)
                       }}
-                      className="absolute top-4 left-4 bg-white hover:bg-gray-50 rounded-full w-10 h-10 shadow-md hover:shadow-lg transition-all duration-300"
+                      className="absolute top-3 md:top-4 left-4 bg-white hover:bg-gray-50 rounded-full w-7 h-7 md:w-10 md:h-10 shadow-md hover:shadow-lg transition-all duration-300"
                     >
                       <motion.div
                         animate={isInWishlist(product.id) ? { scale: [1, 1.2, 1] } : {}}
@@ -152,8 +152,8 @@ export default function NewProductsClient({ products }: { products: Product[] })
                 </div>
 
                 {/* Product Details */}
-                <div className="p-4 md:p-5">
-                  <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="p-2 md:p-5">
+                  <div className="flex flex-col items-center justify-between gap-3 mb-3">
                     <Link href={`/products/${product.slug}`}>
                       <h3 className="text-sm md:text-base font-medium text-right flex-1 hover:text-primary transition-colors">
                         {product.name}
@@ -180,7 +180,7 @@ export default function NewProductsClient({ products }: { products: Product[] })
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-lg md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
+                    <p className="text-sm md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button size="sm" onClick={() => handleAddToCart(product)} className="gap-2 transition-all">
                         <ShoppingCart className="w-4 h-4" />

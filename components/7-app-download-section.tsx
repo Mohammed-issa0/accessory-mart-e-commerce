@@ -7,11 +7,11 @@ export default function AppDownloadSection() {
     <section className="py-12 md:py-16 ">
       <div className="container mx-auto px-4">
         <div className="bg-gray-200 rounded-3xl overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2  md:gap-8 items-center">
             
 
             {/* Right: Content */}
-            <div className="p-8 md:p-12 text-right">
+            <div className="p-4 pb-1 md:p-12 text-right">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">
                 قم بتحميل تطبيقنا قريبًا على App Store و Google Play
               </h2>
@@ -32,7 +32,7 @@ export default function AppDownloadSection() {
             </div>
 
             {/* Left: Phone Mockups */}
-            <div className="relative h-[400px] md:h-[500px] flex items-center justify-center p-8">
+            <div className="relative h-[300px]  md:h-[400px] md:h-[500px] flex items-center justify-center p-2 md:p-8">
               <Image
                 src={phone1}
                 alt="App Preview"
