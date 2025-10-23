@@ -16,13 +16,14 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import { Upload, Copy } from "lucide-react"
+import { Upload, Copy, Banknote, Wallet } from "lucide-react"
 
 export default function CheckoutPage() {
   const { cart, clearCart, totalPrice } = useCart()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [shippingMethod, setShippingMethod] = useState("same")
+  const [paymentMethod, setPaymentMethod] = useState("cash")
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null)
   const [formData, setFormData] = useState({
     fullName: "",
@@ -102,7 +103,7 @@ export default function CheckoutPage() {
           customerPhone: formData.phone,
           shippingAddress: formData.address,
           shippingCity: formData.city,
-          paymentMethod: "cash",
+          paymentMethod: paymentMethod,
           notes: `Company: ${formData.company}, State: ${formData.state}, Postal: ${formData.postalCode}`,
         }),
       })
@@ -310,58 +311,131 @@ export default function CheckoutPage() {
               {/* Payment Method */}
               <div className="bg-white rounded-lg p-6">
                 <h2 className="text-xl font-bold mb-6 text-right">طريقة الدفع</h2>
-                <p className="text-sm text-gray-600 mb-4 text-right">جميع المعاملات آمنة ومشفرة.</p>
+                <p className="text-sm text-gray-600 mb-6 text-right">جميع المعاملات آمنة ومشفرة.</p>
 
-                <div className="border-2 border-black rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-black rounded-full"></div>
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
+                  {/* Cash on Delivery */}
+                  <div className="border-2 rounded-lg p-4 transition-all hover:border-primary">
+                    <div className="flex items-center justify-between mb-2">
+                      <RadioGroupItem value="cash" id="cash" />
+                      <Label htmlFor="cash" className="flex items-center gap-3 cursor-pointer flex-1 justify-end">
+                        <span className="font-semibold text-lg">الدفع عند الاستلام</span>
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-primary" />
+                        </div>
+                      </Label>
                     </div>
-                    <span className="font-semibold">بنك الراجحي</span>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                    <p className="text-sm text-gray-700 text-right">مؤسسة متجر الاكسسوارات</p>
-
-                    <div className="flex items-center justify-between bg-white rounded-md p-3">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          navigator.clipboard.writeText("123456790")
-                          toast({ title: "تم النسخ", description: "تم نسخ رقم الحساب" })
-                        }}
+                    {paymentMethod === "cash" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 bg-gray-50 rounded-lg p-4"
                       >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <span className="font-mono">123456790</span>
+                        <p className="text-sm text-gray-700 text-right">
+                          سيتم الدفع نقداً عند استلام الطلب. يرجى التأكد من توفر المبلغ المطلوب عند التسليم.
+                        </p>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Bank Transfer */}
+                  <div className="border-2 rounded-lg p-4 transition-all hover:border-primary">
+                    <div className="flex items-center justify-between mb-2">
+                      <RadioGroupItem value="transfer" id="transfer" />
+                      <Label htmlFor="transfer" className="flex items-center gap-3 cursor-pointer flex-1 justify-end">
+                        <span className="font-semibold text-lg">ادفع الآن (تحويل بنكي)</span>
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Banknote className="h-5 w-5 text-primary" />
+                        </div>
+                      </Label>
                     </div>
+                    {paymentMethod === "transfer" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 space-y-4"
+                      >
+                        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">اسم البنك:</span>
+                            <span className="font-semibold">بنك الراجحي</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">اسم الحساب:</span>
+                            <span className="font-semibold">امنيه الدسوقي</span>
+                          </div>
 
-                    <p className="text-xs text-gray-600 text-right">يرجى كتابة "دفع محمد سعيد" في معلومات التحويل.</p>
-                  </div>
-                </div>
+                          <div className="flex items-center justify-between bg-white rounded-md p-3">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText("4942666")
+                                toast({ title: "تم النسخ", description: "تم نسخ رقم الحساب" })
+                              }}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <div className="text-right">
+                              <span className="text-xs text-gray-500 block">رقم الحساب:</span>
+                              <span className="font-mono font-bold">4942666</span>
+                            </div>
+                          </div>
 
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1 bg-transparent"
-                      onClick={() => document.getElementById("receipt")?.click()}
-                    >
-                      <Upload className="h-4 w-4 ml-2" />
-                      إرفاق إيصال التحويل (اختياري)
-                    </Button>
-                    <input id="receipt" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                    <Button variant="outline">اختيار ملف</Button>
+                          <p className="text-xs text-gray-600 text-right bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                            ⚠️ يرجى كتابة "شراء إكسسوارات" في معلومات التحويل
+                          </p>
+                        </div>
+
+                        {/* Receipt Upload */}
+                        <div className="space-y-3">
+                          <label className="block text-sm font-medium text-right">
+                            إرفاق إيصال التحويل <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              id="receipt"
+                              type="file"
+                              className="hidden"
+                              accept="image/*,.pdf"
+                              onChange={handleFileChange}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="flex-1 bg-transparent"
+                              onClick={() => document.getElementById("receipt")?.click()}
+                            >
+                              <Upload className="h-4 w-4 ml-2" />
+                              {paymentReceipt ? "تغيير الملف" : "اختيار ملف"}
+                            </Button>
+                          </div>
+                          {paymentReceipt && (
+                            <div className="flex items-center justify-between bg-green-50 p-3 rounded-md border border-green-200">
+                              <button
+                                type="button"
+                                onClick={() => setPaymentReceipt(null)}
+                                className="text-red-500 text-sm hover:underline"
+                              >
+                                إزالة
+                              </button>
+                              <p className="text-sm text-green-700 font-medium">✓ {paymentReceipt.name}</p>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500 text-right">
+                            يرجى رفع صورة واضحة لإيصال التحويل البنكي (JPG, PNG, PDF)
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
-                  {paymentReceipt && (
-                    <p className="text-sm text-green-600 text-right">تم إرفاق: {paymentReceipt.name}</p>
-                  )}
-                </div>
+                </RadioGroup>
               </div>
 
               <Button className="w-full" size="lg" onClick={handleSubmit} disabled={loading}>
-                {loading ? "جاري المعالجة..." : "تأكيد دفع"}
+                {loading ? "جاري المعالجة..." : "تأكيد الطلب"}
               </Button>
             </motion.div>
 

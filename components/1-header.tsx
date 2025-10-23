@@ -2,9 +2,8 @@
 
 import type React from "react"
 
-import { Search, ShoppingCart, User, Menu, LogOut, Settings, Package, LayoutDashboard, Heart } from "lucide-react"
+import { ShoppingCart, User, Menu, LogOut, Settings, Package, LayoutDashboard, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { createBrowserClient } from "@/lib/supabase/client"
 import Link from "next/link"
@@ -212,48 +211,74 @@ export default function Header() {
                       <User className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="px-2 py-1.5 text-sm">
-                      <p className="font-semibold">{user.user_metadata?.full_name || "المستخدم"}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                      {isAdmin && <p className="text-xs text-primary font-semibold mt-1">مدير النظام</p>}
+                  <DropdownMenuContent align="end" className="w-64" dir="rtl">
+                    <div className="px-4 py-3 border-b">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="text-right flex-1">
+                          <p className="font-semibold text-sm">{user.user_metadata?.full_name || "المستخدم"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <div className="mt-2 px-2 py-1 bg-primary/10 rounded text-xs text-primary font-semibold text-center">
+                          مدير النظام
+                        </div>
+                      )}
                     </div>
-                    <DropdownMenuSeparator />
+
                     {isAdmin && (
                       <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin" className="cursor-pointer">
-                            <LayoutDashboard className="ml-2 h-4 w-4" />
-                            لوحة التحكم
+                        <DropdownMenuItem asChild className="cursor-pointer py-3">
+                          <Link href="/admin" className="flex items-center gap-3">
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>لوحة التحكم</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
-                    <DropdownMenuItem asChild>
-                      <Link href="/wishlist" className="cursor-pointer">
-                        <Heart className="ml-2 h-4 w-4" />
-                        المفضلة
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account" className="flex items-center gap-3">
+                        <User className="w-4 h-4" />
+                        <span>حسابي</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="cursor-pointer">
-                        <Settings className="ml-2 h-4 w-4" />
-                        الإعدادات
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account/orders" className="flex items-center gap-3">
+                        <Package className="w-4 h-4" />
+                        <span>طلباتي</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/orders" className="cursor-pointer">
-                        <Package className="ml-2 h-4 w-4" />
-                        طلباتي
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/wishlist" className="flex items-center gap-3">
+                        <Heart className="w-4 h-4" />
+                        <span>المفضلة</span>
                       </Link>
                     </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account/settings" className="flex items-center gap-3">
+                        <Settings className="w-4 h-4" />
+                        <span>الإعدادات</span>
+                      </Link>
+                    </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
-                      <LogOut className="ml-2 h-4 w-4" />
-                      تسجيل الخروج
+
+                    <DropdownMenuItem
+                      onClick={handleSignOut}
+                      className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 py-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <LogOut className="w-4 h-4" />
+                        <span>تسجيل الخروج</span>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -265,13 +290,8 @@ export default function Header() {
                 </Link>
               )}
             </div>
-
-           
           </div>
         </div>
-
-       
-       
       </div>
 
       <div className="md:hidden">
@@ -319,7 +339,7 @@ export default function Header() {
                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span>من ��حن</span>
+                      <span>من حن</span>
                     </Link>
                     <Link
                       href="/products"
@@ -487,48 +507,74 @@ export default function Header() {
                       <User className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="px-2 py-1.5 text-sm">
-                      <p className="font-semibold">{user.user_metadata?.full_name || "المستخدم"}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                      {isAdmin && <p className="text-xs text-primary font-semibold mt-1">مدير النظام</p>}
+                  <DropdownMenuContent align="end" className="w-64" dir="rtl">
+                    <div className="px-4 py-3 border-b">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="text-right flex-1">
+                          <p className="font-semibold text-sm">{user.user_metadata?.full_name || "المستخدم"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <div className="mt-2 px-2 py-1 bg-primary/10 rounded text-xs text-primary font-semibold text-center">
+                          مدير النظام
+                        </div>
+                      )}
                     </div>
-                    <DropdownMenuSeparator />
+
                     {isAdmin && (
                       <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin" className="cursor-pointer">
-                            <LayoutDashboard className="ml-2 h-4 w-4" />
-                            لوحة التحكم
+                        <DropdownMenuItem asChild className="cursor-pointer py-3">
+                          <Link href="/admin" className="flex items-center gap-3">
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>لوحة التحكم</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
-                    <DropdownMenuItem asChild>
-                      <Link href="/wishlist" className="cursor-pointer">
-                        <Heart className="ml-2 h-4 w-4" />
-                        المفضلة
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account" className="flex items-center gap-3">
+                        <User className="w-4 h-4" />
+                        <span>حسابي</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="cursor-pointer">
-                        <Settings className="ml-2 h-4 w-4" />
-                        الإعدادات
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account/orders" className="flex items-center gap-3">
+                        <Package className="w-4 h-4" />
+                        <span>طلباتي</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/orders" className="cursor-pointer">
-                        <Package className="ml-2 h-4 w-4" />
-                        طلباتي
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/wishlist" className="flex items-center gap-3">
+                        <Heart className="w-4 h-4" />
+                        <span>المفضلة</span>
                       </Link>
                     </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild className="cursor-pointer py-3">
+                      <Link href="/account/settings" className="flex items-center gap-3">
+                        <Settings className="w-4 h-4" />
+                        <span>الإعدادات</span>
+                      </Link>
+                    </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
-                      <LogOut className="ml-2 h-4 w-4" />
-                      تسجيل الخروج
+
+                    <DropdownMenuItem
+                      onClick={handleSignOut}
+                      className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 py-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <LogOut className="w-4 h-4" />
+                        <span>تسجيل الخروج</span>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
