@@ -14,7 +14,7 @@ export default function RevenueChartClient({ data }: RevenueChartClientProps) {
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip
-          formatter={(value: number) => [`${value.toLocaleString("ar-SA")} ريال`, "الإيرادات"]}
+          formatter={(value: number) => [`${value.toLocaleString("ar-SA")} ج.س`, "الإيرادات"]}
           labelStyle={{ direction: "rtl" }}
         />
         <Bar dataKey="revenue" fill="#000000" radius={[8, 8, 0, 0]} />

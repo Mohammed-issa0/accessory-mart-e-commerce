@@ -249,7 +249,7 @@ export default function CustomersPageClient({ customers }: Props) {
                           <span className="text-sm text-gray-900">{order.items?.[0]?.product_name}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order.total} ريال</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order.total} ج.س</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order.items?.length || 0}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {new Date(order.created_at).toLocaleDateString("ar-SA", {
@@ -268,7 +268,7 @@ export default function CustomersPageClient({ customers }: Props) {
                 <p className="text-sm text-gray-600">إجمالي المشتريات: {customerOrders.length} منتجات</p>
                 <p className="text-lg font-bold text-gray-900">
                   المجموع الكلي:{" "}
-                  {customerOrders.reduce((sum, order) => sum + Number.parseFloat(order.total || 0), 0).toFixed(2)} ريال
+                  {customerOrders.reduce((sum, order) => sum + Number.parseFloat(order.total || 0), 0).toFixed(2)} ج.س
                 </p>
               </div>
 

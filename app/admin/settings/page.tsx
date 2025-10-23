@@ -154,11 +154,11 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="shipping-cost">تكلفة الشحن (ريال)</Label>
+                <Label htmlFor="shipping-cost">تكلفة الشحن (ج.س)</Label>
                 <Input id="shipping-cost" type="number" defaultValue="25" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="free-shipping">الشحن المجاني عند (ريال)</Label>
+                <Label htmlFor="free-shipping">الشحن المجاني عند (ج.س)</Label>
                 <Input id="free-shipping" type="number" defaultValue="200" />
               </div>
               <div className="space-y-2">

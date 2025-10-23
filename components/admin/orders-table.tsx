@@ -62,7 +62,7 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
                   <td className="py-3 px-4 text-sm text-gray-900">{order.customer_name}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">{order.customer_email}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">{order.customer_phone}</td>
-                  <td className="py-3 px-4 text-sm text-gray-900">{order.total} ريال</td>
+                  <td className="py-3 px-4 text-sm text-gray-900">{order.total} ج.س</td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${status.className}`}>
                       {status.label}

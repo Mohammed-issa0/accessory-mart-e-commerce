@@ -178,7 +178,7 @@ export default function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                         </div>
                       </td>
                       <td className="py-4 text-center text-sm text-gray-900">{item.quantity}</td>
-                      <td className="py-4 text-center text-sm text-gray-900">{item.price} ريال</td>
+                      <td className="py-4 text-center text-sm text-gray-900">{item.price} ج.س</td>
                       <td className="py-4 text-center text-sm text-gray-900">--</td>
                     </tr>
                   ))}

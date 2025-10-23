@@ -160,7 +160,7 @@ export default function FeaturedProductsClient({ products }: { products: Product
                     )}
                   </div>
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-                    <p className="text-base md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
+                    <p className="text-base md:text-xl font-bold text-right">{product.price.toFixed(2)} ج.س</p>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button
                         size="sm"

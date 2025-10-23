@@ -128,7 +128,7 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                 </Link>
 
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-lg font-bold">{product.price.toFixed(2)} ريال</p>
+                  <p className="text-lg font-bold">{product.price.toFixed(2)} ج.س</p>
                   {product.colors.length > 0 && (
                     <div className="flex gap-1">
                       {product.colors.slice(0, 3).map((color, index) => (

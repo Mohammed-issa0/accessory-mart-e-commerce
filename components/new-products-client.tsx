@@ -180,7 +180,7 @@ export default function NewProductsClient({ products }: { products: Product[] })
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
+                    <p className="text-sm md:text-xl font-bold text-right">{product.price.toFixed(2)} ج.س</p>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button size="sm" onClick={() => handleAddToCart(product)} className="gap-2 transition-all">
                         <ShoppingCart className="w-4 h-4" />

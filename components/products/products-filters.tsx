@@ -92,7 +92,7 @@ export default function ProductsFilters({ categories }: { categories: Category[]
         <div className="space-y-3">
           <div>
             <Label htmlFor="minPrice" className="text-sm">
-              من (ريال)
+              من (ج.س)
             </Label>
             <Input
               id="minPrice"
@@ -105,7 +105,7 @@ export default function ProductsFilters({ categories }: { categories: Category[]
           </div>
           <div>
             <Label htmlFor="maxPrice" className="text-sm">
-              إلى (ريال)
+              إلى (ج.س)
             </Label>
             <Input
               id="maxPrice"

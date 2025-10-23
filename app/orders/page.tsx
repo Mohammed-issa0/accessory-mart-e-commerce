@@ -237,10 +237,10 @@ export default function OrdersPage() {
                         <div className="flex-1">
                           <p className="font-semibold">{item.product_name}</p>
                           <p className="text-sm text-muted-foreground">
-                            الكمية: {item.quantity} × {item.price.toFixed(2)} ريال
+                            الكمية: {item.quantity} × {item.price.toFixed(2)} ج.س
                           </p>
                         </div>
-                        <p className="font-semibold text-primary">{(item.quantity * item.price).toFixed(2)} ريال</p>
+                        <p className="font-semibold text-primary">{(item.quantity * item.price).toFixed(2)} ج.س</p>
                       </motion.div>
                     ))}
                   </motion.div>
@@ -252,7 +252,7 @@ export default function OrdersPage() {
                     className="border-t pt-4 flex justify-between items-center"
                   >
                     <span className="font-bold text-lg">المجموع الكلي</span>
-                    <span className="font-bold text-xl text-primary">{order.total.toFixed(2)} ريال</span>
+                    <span className="font-bold text-xl text-primary">{order.total.toFixed(2)} ج.س</span>
                   </motion.div>
                 </motion.div>
               ))}

@@ -105,7 +105,7 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
                     <span className="text-sm text-gray-900">{product.name_ar}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-900">{product.price} ريال</td>
+                <td className="py-3 px-4 text-sm text-gray-900">{product.price} ج.س</td>
                 <td className="py-3 px-4 text-sm text-gray-900">{product.stock_quantity} قطعة</td>
                 <td className="py-3 px-4 text-sm text-gray-600">{product.category?.name_ar || "-"}</td>
                 <td className="py-3 px-4">
