@@ -150,13 +150,15 @@ export default function Header() {
               <Link href="/products" className="hover:text-gray-600 transition-colors">
                 تسوق
               </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>لوحة التحكم</span>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>لوحة التحكم</span>
+                </Link>
+              )}
             </nav>
 
             {/* Center: Logo */}
@@ -217,25 +219,31 @@ export default function Header() {
                       {isAdmin && <p className="text-xs text-primary font-semibold mt-1">مدير النظام</p>}
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="cursor-pointer">
-                        <LayoutDashboard className="ml-2 h-4 w-4" />
-                        لوحة التحكم
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="cursor-pointer">
+                            <LayoutDashboard className="ml-2 h-4 w-4" />
+                            لوحة التحكم
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/wishlist" className="cursor-pointer">
                         <Heart className="ml-2 h-4 w-4" />
                         المفضلة
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/settings" className="cursor-pointer">
                         <Settings className="ml-2 h-4 w-4" />
                         الإعدادات
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/orders" className="cursor-pointer">
                         <Package className="ml-2 h-4 w-4" />
@@ -503,13 +511,17 @@ export default function Header() {
                       {isAdmin && <p className="text-xs text-primary font-semibold mt-1">مدير النظام</p>}
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="cursor-pointer">
-                        <LayoutDashboard className="ml-2 h-4 w-4" />
-                        لوحة التحكم
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="cursor-pointer">
+                            <LayoutDashboard className="ml-2 h-4 w-4" />
+                            لوحة التحكم
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/wishlist" className="cursor-pointer">
                         <Heart className="ml-2 h-4 w-4" />

@@ -13,9 +13,8 @@ type Customer = {
   email: string
   phone: string
   total_orders: number
-  last_order_date: string
-  status: string
   created_at: string
+  is_admin: boolean
 }
 
 type Props = {
@@ -28,19 +27,13 @@ export default function CustomersPageClient({ customers }: Props) {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [customerOrders, setCustomerOrders] = useState<any[]>([])
 
-  // Filter customers
   const filteredCustomers = customers.filter((customer) => {
-    const matchesFilter =
-      filter === "all" ||
-      (filter === "active" && customer.status === "active") ||
-      (filter === "blocked" && customer.status === "blocked")
-
     const matchesSearch =
       customer.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.phone?.includes(searchQuery)
 
-    return matchesFilter && matchesSearch
+    return matchesSearch
   })
 
   const handleViewPurchases = async (customer: Customer) => {
@@ -187,11 +180,11 @@ export default function CustomersPageClient({ customers }: Props) {
                     <tr key={customer.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm text-gray-900">{customer.full_name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{customer.email}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{customer.phone}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{customer.phone || "-"}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{customer.total_orders || 0}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {customer.last_order_date
-                          ? new Date(customer.last_order_date).toLocaleDateString("ar-SA", {
+                        {customer.created_at
+                          ? new Date(customer.created_at).toLocaleDateString("ar-SA", {
                               year: "numeric",
                               month: "long",
                               day: "numeric",

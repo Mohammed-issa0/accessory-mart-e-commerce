@@ -2,6 +2,7 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import AdminSidebar from "@/components/admin/admin-sidebar"
 import AdminHeader from "@/components/admin/admin-header"
+import { redirect } from "next/navigation"
 
 export default async function AdminLayout({
   children,
@@ -13,6 +14,16 @@ export default async function AdminLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/admin/login")
+  }
+
+  const { data: userData } = await supabase.from("users").select("is_admin").eq("id", user.id).maybeSingle()
+
+  if (!userData?.is_admin) {
+    redirect("/")
+  }
 
   // Get admin info for header if user is logged in
   let admin = null
