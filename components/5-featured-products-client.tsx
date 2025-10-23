@@ -70,7 +70,7 @@ export default function FeaturedProductsClient({ products }: { products: Product
           أبرز المنتجات
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {products.map((product, index) => (
             <motion.div
               key={product.id}
@@ -80,7 +80,7 @@ export default function FeaturedProductsClient({ products }: { products: Product
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group"
             >
-              <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                 {/* Product Image */}
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative bg-gray-100 aspect-square overflow-hidden">
@@ -90,7 +90,7 @@ export default function FeaturedProductsClient({ products }: { products: Product
                         alt={product.name}
                         width={400}
                         height={400}
-                        className="w-full h-full object-contain p-8"
+                        className="w-full h-full object-contain p-4 md:p-8"
                       />
                     </motion.div>
                     <motion.div
@@ -116,14 +116,14 @@ export default function FeaturedProductsClient({ products }: { products: Product
                       e.preventDefault()
                       toggleWishlist(product)
                     }}
-                    className="absolute top-4 left-4 bg-white hover:bg-gray-50 rounded-full w-10 h-10 shadow-md hover:shadow-lg transition-all duration-300"
+                    className="absolute top-2 left-2 md:top-4 md:left-4 bg-white hover:bg-gray-50 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:shadow-lg transition-all duration-300"
                   >
                     <motion.div
                       animate={isInWishlist(product.id) ? { scale: [1, 1.2, 1] } : {}}
                       transition={{ duration: 0.3 }}
                     >
                       <Heart
-                        className={`h-5 w-5 transition-all duration-300 ${
+                        className={`h-4 w-4 md:h-5 md:w-5 transition-all duration-300 ${
                           isInWishlist(product.id) ? "fill-red-500 stroke-red-500" : "stroke-black hover:stroke-red-500"
                         }`}
                       />
@@ -132,10 +132,10 @@ export default function FeaturedProductsClient({ products }: { products: Product
                 </motion.div>
 
                 {/* Product Details */}
-                <div className="p-4 md:p-5">
-                  <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="p-3 md:p-5">
+                  <div className="flex items-center justify-between gap-2 md:gap-3 mb-2 md:mb-3">
                     <Link href={`/products/${product.slug}`}>
-                      <h3 className="text-sm md:text-base font-medium text-right flex-1 hover:text-primary transition-colors">
+                      <h3 className="text-xs md:text-base font-medium text-right flex-1 hover:text-primary transition-colors line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
@@ -145,13 +145,13 @@ export default function FeaturedProductsClient({ products }: { products: Product
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.3, delay: index * 0.1 + 0.15 }}
-                        className="flex gap-1.5"
+                        className="flex gap-1 md:gap-1.5"
                       >
                         {product.colors.slice(0, 3).map((color, colorIndex) => (
                           <motion.button
                             key={colorIndex}
                             whileHover={{ scale: 1.2 }}
-                            className="w-5 h-5 rounded-full border-2 border-gray-300 hover:border-primary transition-all duration-200"
+                            className="w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-gray-300 hover:border-primary transition-all duration-200"
                             style={{ backgroundColor: color }}
                             aria-label={`Color ${colorIndex + 1}`}
                           />
@@ -159,11 +159,15 @@ export default function FeaturedProductsClient({ products }: { products: Product
                       </motion.div>
                     )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+                    <p className="text-base md:text-xl font-bold text-right">{product.price.toFixed(2)} ريال</p>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button size="sm" onClick={() => handleAddToCart(product)} className="gap-2 transition-all">
-                        <ShoppingCart className="w-4 h-4" />
+                      <Button
+                        size="sm"
+                        onClick={() => handleAddToCart(product)}
+                        className="gap-1 md:gap-2 transition-all text-xs md:text-sm w-full md:w-auto"
+                      >
+                        <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
                         أضف للسلة
                       </Button>
                     </motion.div>

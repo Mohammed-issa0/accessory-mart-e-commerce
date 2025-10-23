@@ -41,6 +41,13 @@ const menuItems = [
 export default function AdminSidebar() {
   const pathname = usePathname()
 
+  const isActive = (href: string) => {
+    if (href === "/admin") {
+      return pathname === href
+    }
+    return pathname.startsWith(href)
+  }
+
   return (
     <aside className="w-64 bg-white border-l border-gray-200 flex flex-col">
       <div className="p-6 border-b border-gray-200">
@@ -50,7 +57,7 @@ export default function AdminSidebar() {
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
+          const active = isActive(item.href)
 
           return (
             <Link
@@ -58,7 +65,7 @@ export default function AdminSidebar() {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                isActive ? "bg-black text-white" : "text-gray-700 hover:bg-gray-100",
+                active ? "bg-black text-white" : "text-gray-700 hover:bg-gray-100",
               )}
             >
               <Icon className="w-5 h-5" />
