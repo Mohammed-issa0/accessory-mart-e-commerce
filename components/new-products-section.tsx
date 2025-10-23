@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
-import FeaturedProductsClient from "./5-featured-products-client"
-import ProductSkeleton from "./product-skeleton"
-import { Suspense } from "react"
+import NewProductsClient from "./new-products-client"
 
-export default async function FeaturedProducts() {
+export default async function NewProductsSection() {
   const supabase = await createClient()
 
   const { data: products } = await supabase
@@ -18,10 +16,9 @@ export default async function FeaturedProducts() {
       product_colors (color_hex)
     `,
     )
-    .eq("is_featured", true)
     .eq("is_available", true)
     .order("created_at", { ascending: false })
-    .limit(6)
+    .limit(3)
 
   const formattedProducts =
     products?.map((product) => ({
@@ -36,22 +33,5 @@ export default async function FeaturedProducts() {
       colors: product.product_colors?.map((c: any) => c.color_hex) || [],
     })) || []
 
-  return (
-    <Suspense
-      fallback={
-        <section className="py-12 md:py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">أبرز المنتجات</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <ProductSkeleton key={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-      }
-    >
-      <FeaturedProductsClient products={formattedProducts} />
-    </Suspense>
-  )
+  return <NewProductsClient products={formattedProducts} />
 }

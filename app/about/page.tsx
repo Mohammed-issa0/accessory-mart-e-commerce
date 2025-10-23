@@ -47,7 +47,7 @@ export default function AboutPage() {
                   <Award className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">الجودة</h3>
-                <p className="text-gray-600">نختار منتجاتنا بعناية لضمان أعلى معايير الجودة</p>
+                <p className="text-gray-600">نختار من��جاتنا بعناية لضمان أعلى معايير الجودة</p>
               </div>
 
               <div className="text-center">
