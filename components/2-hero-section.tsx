@@ -13,7 +13,7 @@ import Link from "next/link"
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  const slides = [mainphoto, main2, wo2, wo3]
+  const slides = [main3, main2, wo2, wo3]
 
   useEffect(() => {
     const timer = setInterval(() => {
