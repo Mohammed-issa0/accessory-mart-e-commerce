@@ -266,93 +266,12 @@ export default function Header() {
               )}
             </div>
 
-            {/* Left: Language Switcher */}
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-sm">
-                EN
-              </Button>
-              <Button variant="default" size="sm" className="h-8 px-3 text-sm bg-black text-white">
-                AR
-              </Button>
-            </div>
+           
           </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="border-t">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              {/* Dropdowns */}
-              <div className="flex items-center gap-4 text-sm">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1 hover:text-gray-600 transition-colors">
-                      <span>الفئات</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    {categories.length > 0 ? (
-                      categories.map((category) => (
-                        <DropdownMenuItem key={category.id} asChild>
-                          <Link href={`/products?category=${category.slug}`} className="cursor-pointer">
-                            {category.name_ar}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))
-                    ) : (
-                      <DropdownMenuItem disabled>لا توجد فئات</DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1 hover:text-gray-600 transition-colors">
-                      <span>منتجات جديدة</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-64">
-                    {newProducts.length > 0 ? (
-                      newProducts.map((product) => (
-                        <DropdownMenuItem key={product.id} asChild>
-                          <Link href={`/products/${product.slug}`} className="cursor-pointer flex justify-between">
-                            <span>{product.name_ar}</span>
-                            <span className="text-primary font-semibold">{product.price} ج.س</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))
-                    ) : (
-                      <DropdownMenuItem disabled>لا توجد منتجات جديدة</DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/products" className="cursor-pointer text-primary font-semibold">
-                        عرض جميع المنتجات
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <form onSubmit={handleSearch} className="relative w-full max-w-xs">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="search"
-                  placeholder="بحث..."
-                  className="pr-10 text-right"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </form>
-            </div>
-          </div>
-        </div>
+       
+       
       </div>
 
       <div className="md:hidden">
