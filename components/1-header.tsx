@@ -182,7 +182,7 @@ export default function Header() {
 
             {/* Right: Icons */}
             <div className="flex items-center gap-2">
-              <Link href="/wishlist">
+              <Link href="/account/wishlist">
                 <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                   <Heart className="h-5 w-5" />
                   {wishlistCount > 0 && (
@@ -193,7 +193,7 @@ export default function Header() {
                 </Button>
               </Link>
 
-              <Link href="/cart">
+              <Link href="/account/cart">
                 <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
@@ -219,7 +219,7 @@ export default function Header() {
                         </div>
                         <div className="text-right flex-1">
                           <p className="font-semibold text-sm">{user.user_metadata?.full_name || "المستخدم"}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                         
                         </div>
                       </div>
                       {isAdmin && (

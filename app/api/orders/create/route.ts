@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
       customerName,
       customerEmail,
       customerPhone,
-      shippingAddress,
-      shippingCity,
+      customerWhatsapp,
+      deliveryAddress,
       paymentMethod = "cash",
+      paymentReceipt,
       notes,
     } = body
 
@@ -22,8 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No items in order" }, { status: 400 })
     }
 
-    // Validate required fields
-    if (!customerName || !customerEmail || !customerPhone || !shippingAddress || !shippingCity) {
+    if (!customerName || !customerEmail || !customerPhone || !deliveryAddress) {
       return NextResponse.json(
         {
           error: "Missing required customer information",
@@ -32,10 +32,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-    // Calculate subtotal and tax
     const subtotal = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
     const taxRate = 15.0
     const tax = (subtotal * taxRate) / 100
@@ -48,9 +46,10 @@ export async function POST(request: NextRequest) {
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
-        shipping_address: shippingAddress,
-        shipping_city: shippingCity,
+        customer_whatsapp: customerWhatsapp || null,
+        delivery_address: deliveryAddress,
         payment_method: paymentMethod,
+        receipt_url: paymentReceipt || null,
         subtotal: subtotal,
         tax: tax,
         tax_rate: taxRate,
@@ -80,7 +79,6 @@ export async function POST(request: NextRequest) {
 
     if (itemsError) {
       console.error("Error creating order items:", itemsError)
-      // Rollback order if items creation fails
       await supabase.from("orders").delete().eq("id", order.id)
       return NextResponse.json({ error: itemsError.message }, { status: 500 })
     }

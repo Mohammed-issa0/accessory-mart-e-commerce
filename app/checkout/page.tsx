@@ -27,13 +27,10 @@ export default function CheckoutPage() {
   const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null)
   const [formData, setFormData] = useState({
     fullName: "",
+    whatsappNumber: "",
+    phoneNumber: "",
+    deliveryAddress: "",
     email: "",
-    company: "",
-    city: "",
-    address: "",
-    state: "",
-    postalCode: "",
-    phone: "",
   })
   const router = useRouter()
   const { toast } = useToast()
@@ -75,7 +72,7 @@ export default function CheckoutPage() {
   }
 
   const handleSubmit = async () => {
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.city) {
+    if (!formData.fullName || !formData.phoneNumber || !formData.deliveryAddress) {
       toast({
         title: "خطأ",
         description: "يرجى ملء جميع الحقول المطلوبة",
@@ -84,8 +81,33 @@ export default function CheckoutPage() {
       return
     }
 
+    if (paymentMethod === "transfer" && !paymentReceipt) {
+      toast({
+        title: "خطأ",
+        description: "يرجى رفع إيصال التحويل البنكي",
+        variant: "destructive",
+      })
+      return
+    }
+
     setLoading(true)
     try {
+      let receiptUrl = null
+      if (paymentMethod === "transfer" && paymentReceipt) {
+        const formData = new FormData()
+        formData.append("file", paymentReceipt)
+
+        const uploadResponse = await fetch(`/api/upload?filename=${paymentReceipt.name}`, {
+          method: "POST",
+          body: paymentReceipt,
+        })
+
+        if (uploadResponse.ok) {
+          const { url } = await uploadResponse.json()
+          receiptUrl = url
+        }
+      }
+
       const response = await fetch("/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -100,11 +122,11 @@ export default function CheckoutPage() {
           total: total,
           customerName: formData.fullName,
           customerEmail: formData.email,
-          customerPhone: formData.phone,
-          shippingAddress: formData.address,
-          shippingCity: formData.city,
+          customerPhone: formData.phoneNumber,
+          customerWhatsapp: formData.whatsappNumber,
+          deliveryAddress: formData.deliveryAddress,
           paymentMethod: paymentMethod,
-          notes: `Company: ${formData.company}, State: ${formData.state}, Postal: ${formData.postalCode}`,
+          paymentReceipt: receiptUrl,
         }),
       })
 
@@ -176,90 +198,60 @@ export default function CheckoutPage() {
             >
               {/* Billing Information */}
               <div className="bg-white rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-6 text-right">بيانات الفواتير</h2>
-                <div className="grid md:grid-cols-2 gap-4">
+                <h2 className="text-xl font-bold mb-6 text-right">بيانات التوصيل</h2>
+                <div className="space-y-4">
                   <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">الاسم الأول*</label>
+                    <label className="block text-sm font-medium mb-2">
+                      الاسم الكامل <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
+                      className="w-full border rounded-md px-3 py-2 text-right focus:ring-2 focus:ring-primary focus:border-transparent"
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      placeholder="أدخل الاسم الكامل"
                       required
                     />
                   </div>
+
                   <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">اسم العائلة*</label>
-                    <input type="text" className="w-full border rounded-md px-3 py-2 text-right" />
-                  </div>
-                  <div className="text-right md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">اسم الشركة</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">البلد / المنطقة*</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">عنوان الشارع*</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">شقة / جناح / وحدة</label>
-                    <input type="text" className="w-full border rounded-md px-3 py-2 text-right" />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">المدينة*</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">الولاية / المحافظة*</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">الرمز البريدي*</label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.postalCode}
-                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                    />
-                  </div>
-                  <div className="text-right">
-                    <label className="block text-sm font-medium mb-2">رقم الهاتف*</label>
+                    <label className="block text-sm font-medium mb-2">
+                      رقم الواتساب <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="tel"
-                      className="w-full border rounded-md px-3 py-2 text-right"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full border rounded-md px-3 py-2 text-right focus:ring-2 focus:ring-primary focus:border-transparent"
+                      value={formData.whatsappNumber}
+                      onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+                      placeholder="+966 5X XXX XXXX"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="text-right">
+                    <label className="block text-sm font-medium mb-2">
+                      رقم الاتصال <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      className="w-full border rounded-md px-3 py-2 text-right focus:ring-2 focus:ring-primary focus:border-transparent"
+                      value={formData.phoneNumber}
+                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                      placeholder="+966 5X XXX XXXX"
+                      required
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="text-right">
+                    <label className="block text-sm font-medium mb-2">
+                      عنوان التوصيل <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      className="w-full border rounded-md px-3 py-2 text-right focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px]"
+                      value={formData.deliveryAddress}
+                      onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                      placeholder="المدينة، الحي، الشارع، رقم المبنى، رقم الشقة"
                       required
                     />
                   </div>
@@ -357,10 +349,10 @@ export default function CheckoutPage() {
                         exit={{ opacity: 0, height: 0 }}
                         className="mt-4 space-y-4"
                       >
-                        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                        <div dir="rtl" className="bg-gray-50 rounded-lg p-4 space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">اسم البنك:</span>
-                            <span className="font-semibold">بنك الراجحي</span>
+                            <span className="text-sm text-gray-600">اسم بوابة الدفع:</span>
+                            <span className="font-semibold">بنكك</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">اسم الحساب:</span>

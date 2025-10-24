@@ -4,7 +4,18 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, Filter, ArrowUpDown, ChevronDown, ChevronRight, Download, MoreVertical } from "lucide-react"
+import {
+  Search,
+  Filter,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  MoreVertical,
+  FileText,
+  MapPin,
+  CreditCard,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -19,6 +30,9 @@ interface Order {
   customer_phone: string
   payment_method: string
   shipping_address: string
+  delivery_address?: string
+  whatsapp_number?: string
+  receipt_url?: string
   total: number
   status: string
   created_at: string
@@ -135,6 +149,25 @@ export default function OrdersPageClient({ orders, statusCounts }: OrdersPageCli
     link.click()
   }
 
+  const downloadReceipt = async (receiptUrl: string, orderNumber: string) => {
+    try {
+      const response = await fetch(receiptUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `receipt-${orderNumber}.${blob.type.split("/")[1] || "jpg"}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error downloading receipt:", error)
+      // Fallback to opening in new tab if download fails
+      window.open(receiptUrl, "_blank")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -227,8 +260,9 @@ export default function OrdersPageClient({ orders, statusCounts }: OrdersPageCli
               </th>
               <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">رقم الطلب</th>
               <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">العميل</th>
-              <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">الدفع</th>
-              <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">الشحن</th>
+              <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">طريقة الدفع</th>
+              <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">الإيصال</th>
+              <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">العنوان</th>
               <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">المجموع</th>
               <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">الحالة</th>
               <th className="text-right px-4 py-3 text-sm font-medium text-gray-700">تاريخ الإنشاء</th>
@@ -240,64 +274,144 @@ export default function OrdersPageClient({ orders, statusCounts }: OrdersPageCli
               const status = getStatusBadge(order.status)
               const isExpanded = expandedOrders.includes(order.id)
               return (
-                <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <Checkbox
-                      checked={selectedOrders.includes(order.id)}
-                      onCheckedChange={() => toggleOrderSelection(order.id)}
-                    />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Link
-                      href={`/admin/orders/${order.id}`}
-                      className="text-sm font-medium text-gray-900 hover:text-blue-600"
-                    >
-                      #{order.order_number}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-sm text-gray-900">{order.customer_name}</div>
-                    <div className="text-xs text-gray-500">{order.customer_phone}</div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-sm text-gray-900">
-                      {order.payment_method === "apple_pay" ? "Apple Pay" : order.payment_method}
-                    </div>
-                    <div className="text-xs text-gray-500">مدفوع</div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-sm text-gray-900">لا يتطلب</div>
-                    <div className="text-xs text-gray-500">شحن</div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-sm font-medium text-gray-900">KWD {order.total.toFixed(2)}</div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex px-3 py-1 rounded-md text-xs font-medium ${status.className}`}>
-                      {status.label}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-sm text-gray-900">
-                      {new Date(order.created_at).toLocaleDateString("ar-SA", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(order.created_at).toLocaleTimeString("ar-SA", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <Button variant="ghost" size="icon" onClick={() => toggleOrderExpand(order.id)} className="w-8 h-8">
-                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                    </Button>
-                  </td>
-                </tr>
+                <>
+                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <Checkbox
+                        checked={selectedOrders.includes(order.id)}
+                        onCheckedChange={() => toggleOrderSelection(order.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-4">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-sm font-medium text-gray-900 hover:text-blue-600"
+                      >
+                        #{order.order_number}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-900">{order.customer_name}</div>
+                      <div className="text-xs text-gray-500">{order.customer_phone}</div>
+                      {order.whatsapp_number && (
+                        <div className="text-xs text-green-600">واتساب: {order.whatsapp_number}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-4 h-4 text-gray-400" />
+                        <div>
+                          <div className="text-sm text-gray-900">
+                            {order.payment_method === "cash_on_delivery"
+                              ? "الدفع عند الاستلام"
+                              : order.payment_method === "bank_transfer"
+                                ? "تحويل بنكي"
+                                : order.payment_method}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      {order.receipt_url ? (
+                        <a
+                          href={order.receipt_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span className="text-sm">عرض الإيصال</span>
+                        </a>
+                      ) : (
+                        <span className="text-sm text-gray-400">لا يوجد</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      {order.delivery_address ? (
+                        <div className="flex items-start gap-2 max-w-xs">
+                          <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <div className="text-sm text-gray-900 line-clamp-2">{order.delivery_address}</div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">لا يوجد</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm font-medium text-gray-900">KWD {order.total.toFixed(2)}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex px-3 py-1 rounded-md text-xs font-medium ${status.className}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-gray-900">
+                        {new Date(order.created_at).toLocaleDateString("ar-SA", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        })}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(order.created_at).toLocaleTimeString("ar-SA", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleOrderExpand(order.id)}
+                        className="w-8 h-8"
+                      >
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </Button>
+                    </td>
+                  </tr>
+                  {isExpanded && (
+                    <tr className="bg-gray-50">
+                      <td colSpan={10} className="px-6 py-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {order.delivery_address && (
+                            <div className="bg-white p-4 rounded-lg border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                                <MapPin className="w-4 h-4" />
+                                عنوان التوصيل الكامل
+                              </h4>
+                              <p className="text-sm text-gray-700">{order.delivery_address}</p>
+                            </div>
+                          )}
+                          {order.receipt_url && (
+                            <div className="bg-white p-4 rounded-lg border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                                <FileText className="w-4 h-4" />
+                                إيصال الدفع
+                              </h4>
+                              <a href={order.receipt_url} target="_blank" rel="noopener noreferrer" className="block">
+                                <img
+                                  src={order.receipt_url || "/placeholder.svg"}
+                                  alt="إيصال الدفع"
+                                  className="w-full h-48 object-contain rounded border border-gray-200"
+                                />
+                              </a>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full mt-2 bg-transparent"
+                                onClick={() => downloadReceipt(order.receipt_url!, order.order_number)}
+                              >
+                                <Download className="w-4 h-4 ml-2" />
+                                تحميل الإيصال
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               )
             })}
           </tbody>

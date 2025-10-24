@@ -37,7 +37,10 @@ export default async function OrdersPage({
         quantity,
         price,
         total
-      )
+      ),
+      receipt_url,
+      delivery_address,
+      customer_whatsapp
     `,
     )
     .order("created_at", { ascending: false })

@@ -15,15 +15,10 @@ import { Label } from "@/components/ui/label"
 type Address = {
   id: string
   full_name: string
-  phone: string
-  email: string
-  country: string
-  city: string
-  address_line1: string
-  address_line2?: string
-  postal_code?: string
+  whatsapp_number?: string
+  phone_number: string
+  delivery_address: string
   is_default: boolean
-  address_type: string
 }
 
 export default function AddressesPage() {
@@ -36,15 +31,10 @@ export default function AddressesPage() {
 
   const [formData, setFormData] = useState({
     full_name: "",
-    phone: "",
-    email: "",
-    country: "السعودية",
-    city: "",
-    address_line1: "",
-    address_line2: "",
-    postal_code: "",
+    whatsapp_number: "",
+    phone_number: "",
+    delivery_address: "",
     is_default: false,
-    address_type: "billing",
   })
 
   useEffect(() => {
@@ -145,15 +135,10 @@ export default function AddressesPage() {
   const resetForm = () => {
     setFormData({
       full_name: "",
-      phone: "",
-      email: "",
-      country: "السعودية",
-      city: "",
-      address_line1: "",
-      address_line2: "",
-      postal_code: "",
+      whatsapp_number: "",
+      phone_number: "",
+      delivery_address: "",
       is_default: false,
-      address_type: "billing",
     })
     setEditingAddress(null)
   }
@@ -187,94 +172,58 @@ export default function AddressesPage() {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="text-right">
-                    <Label htmlFor="full_name">الاسم الكامل *</Label>
-                    <Input
-                      id="full_name"
-                      required
-                      value={formData.full_name}
-                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                      className="text-right"
-                    />
-                  </div>
-                  <div className="text-right">
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
-                    <Input
-                      id="phone"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="text-right"
-                    />
-                  </div>
-                </div>
-
                 <div className="text-right">
-                  <Label htmlFor="email">البريد الإلكتروني *</Label>
+                  <Label htmlFor="full_name">
+                    الاسم الكامل <span className="text-red-500">*</span>
+                  </Label>
                   <Input
-                    id="email"
-                    type="email"
+                    id="full_name"
                     required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     className="text-right"
+                    placeholder="أدخل الاسم الكامل"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="text-right">
-                    <Label htmlFor="country">الدولة *</Label>
-                    <Input
-                      id="country"
-                      required
-                      value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="text-right"
-                    />
-                  </div>
-                  <div className="text-right">
-                    <Label htmlFor="city">المدينة *</Label>
-                    <Input
-                      id="city"
-                      required
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="text-right"
-                    />
-                  </div>
+                <div className="text-right">
+                  <Label htmlFor="whatsapp_number">رقم الواتساب</Label>
+                  <Input
+                    id="whatsapp_number"
+                    value={formData.whatsapp_number}
+                    onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
+                    className="text-left"
+                    placeholder="+966 5X XXX XXXX"
+                    dir="ltr"
+                  />
                 </div>
 
                 <div className="text-right">
-                  <Label htmlFor="address_line1">العنوان (سطر 1) *</Label>
+                  <Label htmlFor="phone_number">
+                    رقم الاتصال <span className="text-red-500">*</span>
+                  </Label>
                   <Input
-                    id="address_line1"
+                    id="phone_number"
                     required
-                    value={formData.address_line1}
-                    onChange={(e) => setFormData({ ...formData, address_line1: e.target.value })}
-                    className="text-right"
-                    placeholder="رقم المبنى، اسم الشارع"
+                    value={formData.phone_number}
+                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                    className="text-left"
+                    placeholder="+966 5X XXX XXXX"
+                    dir="ltr"
                   />
                 </div>
 
                 <div className="text-right">
-                  <Label htmlFor="address_line2">العنوان (سطر 2)</Label>
-                  <Input
-                    id="address_line2"
-                    value={formData.address_line2}
-                    onChange={(e) => setFormData({ ...formData, address_line2: e.target.value })}
-                    className="text-right"
-                    placeholder="رقم الشقة، الطابق (اختياري)"
-                  />
-                </div>
-
-                <div className="text-right">
-                  <Label htmlFor="postal_code">الرمز البريدي</Label>
-                  <Input
-                    id="postal_code"
-                    value={formData.postal_code}
-                    onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                    className="text-right"
+                  <Label htmlFor="delivery_address">
+                    عنوان التوصيل <span className="text-red-500">*</span>
+                  </Label>
+                  <textarea
+                    id="delivery_address"
+                    required
+                    value={formData.delivery_address}
+                    onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
+                    className="w-full border rounded-md px-3 py-2 text-right focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px]"
+                    placeholder="المدينة، الحي، الشارع، رقم المبنى، رقم الشقة"
                   />
                 </div>
 
@@ -332,17 +281,22 @@ export default function AddressesPage() {
                   <span className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded">افتراضي</span>
                 )}
                 <div className="text-right space-y-2">
-                  <p className="font-semibold">{address.full_name}</p>
-                  <p className="text-sm text-gray-600">{address.phone}</p>
-                  <p className="text-sm text-gray-600">{address.email}</p>
-                  <p className="text-sm text-gray-600">
-                    {address.address_line1}
-                    {address.address_line2 && `, ${address.address_line2}`}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {address.city}, {address.country}
-                  </p>
-                  {address.postal_code && <p className="text-sm text-gray-600">{address.postal_code}</p>}
+                  <p className="font-semibold text-lg">{address.full_name}</p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">رقم الاتصال:</span> {address.phone_number}
+                    </p>
+                    {address.whatsapp_number && (
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">واتساب:</span> {address.whatsapp_number}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-600 mt-2">
+                      <span className="font-medium">العنوان:</span>
+                      <br />
+                      {address.delivery_address}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2 mt-4 justify-end">
                   <Button size="sm" variant="outline" onClick={() => openEditDialog(address)}>
