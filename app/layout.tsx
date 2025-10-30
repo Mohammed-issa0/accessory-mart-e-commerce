@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { CartProvider } from "@/lib/context/cart-context"
 import { WishlistProvider } from "@/lib/context/wishlist-context"
+import { AuthProvider } from "@/lib/contexts/auth-context"
 
 const vazirmatn = Vazirmatn({ subsets: ["arabic"] })
 
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={`${vazirmatn.className} font-sans antialiased`}>
-        <CartProvider>
-          <WishlistProvider>{children}</WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>{children}</WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

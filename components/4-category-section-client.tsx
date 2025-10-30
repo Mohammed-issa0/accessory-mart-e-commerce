@@ -13,7 +13,7 @@ interface Category {
 export default function CategorySectionClient({ categories }: { categories: Category[] }) {
   const firstRow = categories.slice(0, 6)
   const secondRow = categories.slice(6, 12)
-
+  console.log(categories)
   return (
     <section className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-4">

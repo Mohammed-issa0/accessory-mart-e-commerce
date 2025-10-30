@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { signupAction } from "./actions"
 import { motion } from "framer-motion"
 import { Mail, Lock, UserIcon, Phone, CheckCircle, ArrowRight } from "lucide-react"
 
@@ -26,17 +25,8 @@ export default function SignupPage() {
     setLoading(true)
     setError("")
 
-    const result = await signupAction(email, password, name, phone)
-
-    if (result.error) {
-      setError(result.error)
-      setLoading(false)
-    } else {
-      setSuccess(true)
-      setTimeout(() => {
-        router.push("/auth/login")
-      }, 2000)
-    }
+    setError("التسجيل غير متوفر حالياً. يتم العمل على إضافة هذه الميزة في الـ API الخارجي.")
+    setLoading(false)
   }
 
   if (success) {

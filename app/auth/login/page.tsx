@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { loginAction } from "./actions"
+import { useAuth } from "@/lib/contexts/auth-context"
 import { motion } from "framer-motion"
 import { Mail, Lock, ArrowRight } from "lucide-react"
 
@@ -17,20 +17,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { login } = useAuth()
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const result = await loginAction(email, password)
-
-    if (result.error) {
-      setError(result.error)
-      setLoading(false)
-    } else {
+    try {
+      await login(email, password)
       router.push("/")
       router.refresh()
+    } catch (err: any) {
+      setError(err.message || "فشل تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور.")
+      setLoading(false)
     }
   }
 
