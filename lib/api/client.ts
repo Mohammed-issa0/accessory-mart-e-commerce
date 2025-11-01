@@ -37,6 +37,12 @@ export class APIClient {
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Request failed" }))
         console.error("[v0] API request failed:", error)
+        if (error.errors) {
+          const errorMessages = Object.entries(error.errors)
+            .map(([field, messages]) => `${field}: ${(messages as string[]).join(", ")}`)
+            .join("\n")
+          throw new Error(errorMessages || error.message || `HTTP ${response.status}`)
+        }
         throw new Error(error.message || `HTTP ${response.status}`)
       }
 

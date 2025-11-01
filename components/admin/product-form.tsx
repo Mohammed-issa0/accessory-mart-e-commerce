@@ -4,17 +4,18 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload, X, ImageIcon, Plus, Trash2 } from "lucide-react"
+import { Upload, X, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { apiClient } from "@/lib/api/client"
 
 interface Category {
   id: string
-  name_ar: string
+  name_ar?: string
+  name?: string
 }
 
 interface Color {
@@ -30,9 +31,9 @@ interface ProductFormProps {
 
 export default function ProductForm({ categories, product }: ProductFormProps) {
   const [loading, setLoading] = useState(false)
-  const [uploadingImage, setUploadingImage] = useState(false)
-  const [images, setImages] = useState<{ url: string; file?: File }[]>(
-    product?.product_images?.map((img: any) => ({ url: img.image_url })) || [],
+  const [images, setImages] = useState<{ url: string; file: File }[]>([])
+  const [existingImages, setExistingImages] = useState<{ id: number; url: string }[]>(
+    product?.images?.map((img: any) => ({ id: img.id, url: img.url })) || [],
   )
   const [colors, setColors] = useState<Color[]>(
     product?.product_colors?.map((c: any) => ({
@@ -46,49 +47,34 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     name_en: product?.name_en || "",
     price: product?.price?.toString() || "",
     stock_quantity: product?.stock_quantity?.toString() || "",
-    category_id: product?.category_id || "",
+    category_id: product?.category?.id || product?.category_id || "",
     description: product?.description || "",
     sku: product?.sku || "",
     is_available: product?.is_available ?? true,
     is_featured: product?.is_featured ?? false,
   })
   const router = useRouter()
-  const supabase = createClient()
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    setUploadingImage(true)
+    const newImages = Array.from(files).map((file) => ({
+      url: URL.createObjectURL(file),
+      file: file,
+    }))
 
-    try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!response.ok) throw new Error("Upload failed")
-
-        const data = await response.json()
-        return { url: data.url, file }
-      })
-
-      const uploadedImages = await Promise.all(uploadPromises)
-      setImages((prev) => [...prev, ...uploadedImages])
-    } catch (error) {
-      console.error("Error uploading images:", error)
-      alert("حدث خطأ أثناء رفع الصور")
-    } finally {
-      setUploadingImage(false)
-    }
+    setImages((prev) => [...prev, ...newImages])
   }
 
   const removeImage = (index: number) => {
+    // Revoke the object URL to free memory
+    URL.revokeObjectURL(images[index].url)
     setImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index))
   }
 
   const addColor = () => {
@@ -110,41 +96,69 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     setLoading(true)
 
     try {
-      const slug = formData.name_ar
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^\u0600-\u06FFa-z0-9-]/g, "")
+      const submitFormData = new FormData()
 
-      const endpoint = product ? `/api/products/${product.id}` : "/api/products/create"
-      const method = product ? "PUT" : "POST"
+      submitFormData.append("name_ar", formData.name_ar)
+      submitFormData.append("name_en", formData.name_en || formData.name_ar)
+      submitFormData.append("price", formData.price)
+      submitFormData.append("sku", formData.sku || `PRD-${Date.now()}`)
+      submitFormData.append("description", formData.description)
+      submitFormData.append("quantity", formData.stock_quantity)
+      submitFormData.append("status", "published")
+      submitFormData.append("is_featured", formData.is_featured ? "1" : "0")
+      submitFormData.append("category_id", formData.category_id)
+      submitFormData.append("has_variants", "false")
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          slug: product?.slug || slug + "-" + Date.now(),
-          images: images.map((img, index) => ({
-            url: img.url,
-            display_order: index,
-            is_primary: index === 0,
-          })),
-          colors: colors.map((color, index) => ({
-            ...color,
-            display_order: index,
-          })),
-        }),
+      const slug =
+        product?.slug ||
+        formData.name_ar
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^\u0600-\u06FFa-z0-9-]/g, "") +
+          "-" +
+          Date.now()
+      submitFormData.append("slug", slug)
+
+      if (product) {
+        submitFormData.append("_method", "PUT")
+      }
+
+      images.forEach((img) => {
+        submitFormData.append("images[]", img.file)
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || `فشل في ${product ? "تحديث" : "إضافة"} المنتج`)
+      console.log("[v0] Submitting product with", images.length, "new images")
+      console.log("[v0] Form data entries:")
+      for (const [key, value] of submitFormData.entries()) {
+        if (value instanceof File) {
+          console.log(`  ${key}: [File: ${value.name}]`)
+        } else {
+          console.log(`  ${key}: ${value}`)
+        }
+      }
+
+      if (product) {
+        const deletedImageIds = product.images
+          ?.filter((img: any) => !existingImages.find((ei) => ei.id === img.id))
+          .map((img: any) => img.id)
+
+        if (deletedImageIds && deletedImageIds.length > 0) {
+          deletedImageIds.forEach((id: number) => {
+            submitFormData.append("delete_images[]", id.toString())
+          })
+        }
+
+        await apiClient.updateProduct(String(product.id), submitFormData)
+        console.log("[v0] Product updated successfully")
+      } else {
+        await apiClient.createProduct(submitFormData)
+        console.log("[v0] Product created successfully")
       }
 
       router.push("/admin/products")
       router.refresh()
     } catch (error) {
-      console.error("Error saving product:", error)
+      console.error("[v0] Error saving product:", error)
       alert(error instanceof Error ? error.message : `حدث خطأ أثناء ${product ? "تحديث" : "إضافة"} المنتج`)
     } finally {
       setLoading(false)
@@ -229,7 +243,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
               <option value="">اختر الفئة</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.name_ar}
+                  {cat.name_ar || cat.name}
                 </option>
               ))}
             </select>
@@ -269,31 +283,58 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       <div className="bg-white rounded-lg p-6 border border-gray-200">
         <h2 className="text-lg font-bold text-gray-900 mb-6">صور المنتج</h2>
 
+        {existingImages.length > 0 && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">الصور الحالية:</p>
+            <div className="grid grid-cols-4 gap-4">
+              {existingImages.map((img, index) => (
+                <div key={img.id} className="relative group">
+                  <Image
+                    src={img.url || "/placeholder.svg"}
+                    alt={`Existing ${index + 1}`}
+                    width={200}
+                    height={200}
+                    className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(index)}
+                    className="absolute top-2 left-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {images.length > 0 && (
-          <div className="grid grid-cols-4 gap-4 mb-4">
-            {images.map((img, index) => (
-              <div key={index} className="relative group">
-                <Image
-                  src={img.url || "/placeholder.svg"}
-                  alt={`Product ${index + 1}`}
-                  width={200}
-                  height={200}
-                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 left-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                {index === 0 && (
-                  <span className="absolute bottom-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                    رئيسية
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">صور جديدة:</p>
+            <div className="grid grid-cols-4 gap-4">
+              {images.map((img, index) => (
+                <div key={index} className="relative group">
+                  <Image
+                    src={img.url || "/placeholder.svg"}
+                    alt={`New ${index + 1}`}
+                    width={200}
+                    height={200}
+                    className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-2 left-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <span className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                    جديدة
                   </span>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -308,20 +349,10 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             multiple
             onChange={handleImageUpload}
             className="hidden"
-            disabled={uploadingImage}
           />
-          {uploadingImage ? (
-            <>
-              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-pulse" />
-              <p className="text-sm text-gray-600 mb-2">جاري رفع الصور...</p>
-            </>
-          ) : (
-            <>
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-gray-600 mb-2">اسحب الصورة هنا أو اضغط لتختار من جهازك</p>
-              <p className="text-xs text-gray-500">(الحد الأقصى 5 ميجا بايت PNG, JPEG, JPG أو GIF)</p>
-            </>
-          )}
+          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-sm text-gray-600 mb-2">اسحب الصورة هنا أو اضغط لتختار من جهازك</p>
+          <p className="text-xs text-gray-500">(الحد الأقصى 5 ميجا بايت PNG, JPEG, JPG أو GIF)</p>
         </label>
       </div>
 
@@ -411,7 +442,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-4">
-        <Button type="submit" disabled={loading || uploadingImage} className="flex-1">
+        <Button type="submit" disabled={loading} className="flex-1">
           {loading ? "جاري الحفظ..." : product ? "تحديث المنتج" : "حفظ المنتج"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1">

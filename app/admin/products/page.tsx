@@ -10,6 +10,7 @@ import CategoryFilters from "@/components/admin/category-filters"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { apiClient } from "@/lib/api/client"
 
 export default function ProductsPage() {
   const searchParams = useSearchParams()
@@ -19,25 +20,30 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch products
-        const productsRes = await fetch("/api/products")
-        const productsData = await productsRes.json()
+        const productsData = await apiClient.getProducts()
+        const categoriesData = await apiClient.getCategories()
 
-        // Fetch categories
-        const categoriesRes = await fetch("/api/categories")
-        const categoriesData = await categoriesRes.json()
+        console.log("[v0] Admin products - Products response:", productsData)
+        console.log("[v0] Admin products - Categories response:", categoriesData)
 
-        console.log(" Admin products - Products fetched:", productsData.data?.length || 0)
-        console.log(" Admin products - Categories fetched:", categoriesData.data?.length || 0)
+        const productsList = productsData.data || productsData.products || []
+        const categoriesList = categoriesData.data || categoriesData.categories || []
+        const total = productsData.meta?.total || productsList.length
 
-        setProducts(productsData.data || [])
-        setCategories(categoriesData.data || [])
+        console.log("[v0] Admin products - Products fetched:", productsList.length)
+        console.log("[v0] Admin products - Total count from API:", total)
+        console.log("[v0] Admin products - Categories fetched:", categoriesList.length)
+
+        setProducts(productsList)
+        setCategories(categoriesList)
+        setTotalCount(total)
       } catch (error) {
-        console.error(" Error fetching admin products data:", error)
+        console.error("[v0] Error fetching admin products data:", error)
       } finally {
         setLoading(false)
       }
@@ -47,16 +53,16 @@ export default function ProductsPage() {
   }, [])
 
   // Filter products by category if selected
-  const filteredProducts = categoryId ? products.filter((p) => p.category_id?.toString() === categoryId) : products
+  const filteredProducts = categoryId ? products.filter((p) => p.category?.id?.toString() === categoryId) : products
 
   // Calculate categories with counts
   const categoriesWithCounts = categories.map((category) => ({
     ...category,
-    count: products.filter((p) => p.category_id === category.id).length,
+    name_ar: category.name_ar || category.name,
+    count: products.filter((p) => p.category?.id === category.id).length,
   }))
 
-  // Calculate statistics
-  const totalProducts = products.length
+  const totalProducts = totalCount
   const activeCategories = categories.length
   const outOfStock = products.filter((p) => p.stock_quantity === 0).length
   const lowStock = products.filter((p) => p.stock_quantity > 0 && p.stock_quantity < 10).length

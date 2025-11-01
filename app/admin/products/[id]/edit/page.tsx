@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
 import ProductForm from "@/components/admin/product-form"
 import { Spinner } from "@/components/ui/spinner"
+import { apiClient } from "@/lib/api/client"
 
 interface Category {
   id: string
@@ -19,28 +20,25 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch product
-        const productResponse = await fetch(`/api/products/${params.id}`)
-        if (!productResponse.ok) {
-          setNotFoundError(true)
-          return
-        }
-        const productData = await productResponse.json()
+        const productData = await apiClient.getProduct(params.id)
+        const categoriesData = await apiClient.getCategories()
 
-        // Fetch categories
-        const categoriesResponse = await fetch("/api/categories")
-        const categoriesData = await categoriesResponse.json()
+        console.log("[v0] Product data:", productData)
+        console.log("[v0] Categories data:", categoriesData)
+
+        const productItem = productData.data || productData.product || productData
+        const categoriesList = categoriesData.data || categoriesData.categories || []
 
         // Transform data
-        const formattedCategories = (categoriesData.data || []).map((cat: any) => ({
+        const formattedCategories = categoriesList.map((cat: any) => ({
           id: String(cat.id),
-          name_ar: cat.name || cat.name_ar || "غير محدد",
+          name_ar: cat.name_ar || cat.name || "غير محدد",
         }))
 
-        setProduct(productData)
+        setProduct(productItem)
         setCategories(formattedCategories)
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("[v0] Error fetching data:", error)
         setNotFoundError(true)
       } finally {
         setLoading(false)
@@ -67,12 +65,6 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">تعديل المنتج</h1>
         <p className="text-gray-600">قم بتحديث معلومات المنتج</p>
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>ملاحظة:</strong> وظيفة تعديل المنتجات تتطلب API endpoint للتحديث (PUT /api/products/:id). حالياً
-            يمكنك تعديل النموذج لكن الحفظ لن يعمل حتى يتم توفير هذا الـ endpoint من الباك اند.
-          </p>
-        </div>
       </div>
 
       <ProductForm categories={categories} product={product} />

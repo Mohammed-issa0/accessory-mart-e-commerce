@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api/client"
 
 interface Product {
   id: string | number
@@ -51,20 +52,14 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
 
     setIsDeleting(true)
     try {
-      const response = await fetch(`/api/products/${productToDelete.id}`, {
-        method: "DELETE",
-      })
+      await apiClient.deleteProduct(String(productToDelete.id))
 
-      if (!response.ok) {
-        throw new Error("Failed to delete product")
-      }
+      console.log("[v0] Product deleted successfully:", productToDelete.id)
 
       // Refresh the page to show updated data
-      router.refresh()
-      setDeleteDialogOpen(false)
-      setProductToDelete(null)
+      window.location.reload()
     } catch (error) {
-      console.error("Error deleting product:", error)
+      console.error("[v0] Error deleting product:", error)
       alert("حدث خطأ أثناء حذف المنتج")
     } finally {
       setIsDeleting(false)
@@ -92,9 +87,9 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                      {product.product_images?.[0]?.image_url || product.image_url ? (
+                      {product.images?.[0]?.image_url || product.image_url ? (
                         <Image
-                          src={product.product_images?.[0]?.image_url || product.image_url || "/placeholder.svg"}
+                          src={product.images[0] || product.image_url || "/placeholder.svg"}
                           alt={product.name_ar}
                           width={40}
                           height={40}

@@ -16,6 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 interface Category {
   id: number
   name: string
+  name_ar?: string
   slug: string
 }
 
@@ -24,7 +25,6 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(false)
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
-  console.log(categories)
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [formData, setFormData] = useState({
@@ -48,9 +48,11 @@ export default function NewProductPage() {
   const fetchCategories = async () => {
     try {
       const data = await apiClient.getCategories()
-      setCategories(data.categories || [])
+      const categoriesList = data.data || data.categories || []
+      console.log("[v0] Categories fetched:", categoriesList)
+      setCategories(categoriesList)
     } catch (error) {
-      console.error("Error fetching categories:", error)
+      console.error("[v0] Error fetching categories:", error)
     } finally {
       setCategoriesLoading(false)
     }
@@ -87,28 +89,34 @@ export default function NewProductPage() {
 
       // Add basic fields
       submitFormData.append("name_ar", formData.name_ar)
-      submitFormData.append("name_en", formData.name_en)
+      submitFormData.append("name_en", formData.name_en || formData.name_ar)
       submitFormData.append("slug", formData.slug || formData.name_ar.toLowerCase().replace(/\s+/g, "-"))
       submitFormData.append("price", formData.price)
-      submitFormData.append("sku", formData.sku)
+      submitFormData.append("sku", formData.sku || `PRD-${Date.now()}`)
       submitFormData.append("description", formData.description)
-      submitFormData.append("compare_price", formData.compare_price)
+      submitFormData.append("compare_price", formData.compare_price || "")
       submitFormData.append("quantity", formData.quantity)
       submitFormData.append("status", formData.status)
       submitFormData.append("is_featured", formData.is_featured ? "1" : "0")
       submitFormData.append("category_id", formData.category_id)
+      submitFormData.append("has_variants", "false")
 
-      // Add images
-      images.forEach((image) => {
-        submitFormData.append("images[]", image)
-      })
+      console.log("[v0] Submitting product with data:")
+      for (const [key, value] of submitFormData.entries()) {
+        if (value instanceof File) {
+          console.log(`  ${key}: [File: ${value.name}]`)
+        } else {
+          console.log(`  ${key}: ${value}`)
+        }
+      }
 
       await apiClient.createProduct(submitFormData)
 
+      console.log("[v0] Product created successfully")
       router.push("/admin/products")
       router.refresh()
     } catch (error: any) {
-      console.error("Error creating product:", error)
+      console.error("[v0] Error creating product:", error)
       alert(error.message || "حدث خطأ أثناء إضافة المنتج")
     } finally {
       setLoading(false)
@@ -210,7 +218,7 @@ export default function NewProductPage() {
                 <option value="">اختر الفئة</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.name}
+                    {cat.name_ar || cat.name}
                   </option>
                 ))}
               </select>
