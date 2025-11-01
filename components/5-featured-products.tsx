@@ -1,12 +1,10 @@
 import FeaturedProductsClient from "./5-featured-products-client"
 import ProductSkeleton from "./product-skeleton"
 import { Suspense } from "react"
+import { getBaseUrl } from "@/lib/utils/get-base-url"
 
 export default async function FeaturedProducts() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
+  const baseUrl = getBaseUrl()
 
   let products: any[] = []
 
@@ -17,7 +15,7 @@ export default async function FeaturedProducts() {
     const productsData = await productsRes.json()
     products = productsData.data || []
   } catch (error) {
-    console.error("[v0] Error fetching featured products:", error)
+    console.error(" Error fetching featured products:", error)
     // Return empty array on error
     products = []
   }

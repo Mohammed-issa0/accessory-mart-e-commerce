@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/contexts/auth-context"
 import { TrendingUp, Package, ShoppingCart, Users } from "lucide-react"
 import DashboardStats from "@/components/admin/dashboard-stats"
 import SuccessMetrics from "@/components/admin/success-metrics"
@@ -7,35 +10,55 @@ import LatestOrders from "@/components/admin/latest-orders"
 import TopProducts from "@/components/admin/top-products"
 import SalesByCategory from "@/components/admin/sales-by-category"
 
-export default async function AdminDashboardPage() {
-  const supabase = await createClient()
+export default function AdminDashboardPage() {
+  const { user } = useAuth()
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalRevenue: 0,
+  })
+  const [loading, setLoading] = useState(true)
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const productsRes = await fetch("/api/products")
+        const productsData = await productsRes.json()
+        const totalProducts = productsData.data?.length || 0
 
-  let admin = null
-  if (user?.id) {
-    const { data: adminData } = await supabase.from("admins").select("full_name").eq("user_id", user.id).single()
-    admin = adminData
+        setStats({
+          totalProducts,
+          totalOrders: 0, // Will be connected when API endpoint is available
+          totalCustomers: 0, // Will be connected when API endpoint is available
+          totalRevenue: 0, // Will be connected when API endpoint is available
+        })
+      } catch (error) {
+        console.error(" Error fetching admin stats:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحميل...</p>
+        </div>
+      </div>
+    )
   }
-
-  // Get statistics
-  const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
-
-  const { count: totalOrders } = await supabase.from("orders").select("*", { count: "exact", head: true })
-
-  const { count: totalCustomers } = await supabase.from("customers").select("*", { count: "exact", head: true })
-
-  const { data: revenueData } = await supabase.from("orders").select("total").eq("status", "completed")
-
-  const totalRevenue = revenueData?.reduce((sum, order) => sum + Number(order.total), 0) || 0
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-white rounded-lg p-6 border border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">مرحباً بك {admin?.full_name || "في لوحة التحكم"} 👋</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">مرحباً بك {user?.name || "في لوحة التحكم"} 👋</h1>
         <p className="text-gray-600">إليك ملخص أداء متجرك اليوم</p>
       </div>
 
@@ -46,28 +69,28 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardStats
           title="الأرباح"
-          value={`${totalRevenue.toLocaleString("ar-SA")} ريال`}
+          value={`${stats.totalRevenue.toLocaleString("ar-SA")} ريال`}
           subtitle="عرض التفاصيل"
           icon={TrendingUp}
           trend="up"
         />
         <DashboardStats
           title="الطلبات"
-          value={`${totalOrders || 0} طلب`}
+          value={`${stats.totalOrders} طلب`}
           subtitle="عرض التفاصيل"
           icon={ShoppingCart}
           trend="up"
         />
         <DashboardStats
-          title="الأرباح"
-          value={`${totalCustomers || 0} عميل`}
+          title="العملاء"
+          value={`${stats.totalCustomers} عميل`}
           subtitle="عرض التفاصيل"
           icon={Users}
           trend="neutral"
         />
         <DashboardStats
           title="المنتجات"
-          value={`${totalProducts || 0} منتج`}
+          value={`${stats.totalProducts} منتج`}
           subtitle="عرض التفاصيل"
           icon={Package}
           trend="neutral"

@@ -1,10 +1,8 @@
 import NewProductsClient from "./new-products-client"
+import { getBaseUrl } from "@/lib/utils/get-base-url"
 
 export default async function NewProductsSection() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
+  const baseUrl = getBaseUrl()
 
   let products: any[] = []
 

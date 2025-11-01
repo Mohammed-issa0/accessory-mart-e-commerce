@@ -30,13 +30,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       .single()
 
     if (error) {
-      console.error("[v0] Error updating order status:", error)
+      console.error(" Error updating order status:", error)
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("[v0] Error in status update route:", error)
+    console.error(" Error in status update route:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

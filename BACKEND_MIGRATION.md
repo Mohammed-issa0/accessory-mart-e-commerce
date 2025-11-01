@@ -33,7 +33,7 @@
 - يتم حفظها محلياً في localStorage
 - ستتم إضافة API endpoints لاحقاً
 
-⏳ **لوحة التحكم الإدارية (Admin Dashboard)**
+⏳ **لوحة التحكم ال��دارية (Admin Dashboard)**
 - في انتظار إضافة endpoints للإدارة
 
 ⏳ **التسجيل (Registration)**

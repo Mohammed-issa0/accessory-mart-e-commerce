@@ -5,7 +5,7 @@ import type React from "react"
 import { ShoppingCart, User, Menu, LogOut, Settings, Package, LayoutDashboard, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/contexts/auth-context"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -33,93 +33,46 @@ type Product = {
 }
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const { user, logout } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
   const [newProducts, setNewProducts] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const supabase = createBrowserClient()
   const { totalItems } = useCart()
   const { totalItems: wishlistCount } = useWishlist()
   const router = useRouter()
 
   useEffect(() => {
-    if (!supabase) return
-
-    checkUser()
     fetchCategories()
     fetchNewProducts()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        checkAdminStatus(session.user.id)
-      } else {
-        setIsAdmin(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
-  const checkUser = async () => {
-    if (!supabase) return
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    setUser(user)
-    if (user) {
-      checkAdminStatus(user.id)
-    }
-  }
-
   const handleSignOut = async () => {
-    if (!supabase) return
-
-    await supabase.auth.signOut()
-    setUser(null)
-    setIsAdmin(false)
-  }
-
-  const checkAdminStatus = async (userId: string) => {
-    if (!supabase) return
-
-    const { data: userData } = await supabase.from("users").select("is_admin").eq("id", userId).single()
-
-    setIsAdmin(userData?.is_admin || false)
+    await logout()
+    router.push("/")
   }
 
   const fetchCategories = async () => {
-    if (!supabase) return
-
-    const { data } = await supabase
-      .from("categories")
-      .select("id, name_ar, slug")
-      .eq("is_active", true)
-      .order("display_order", { ascending: true })
-      .limit(10)
-
-    if (data) {
-      setCategories(data)
+    try {
+      const response = await fetch("/api/categories")
+      const data = await response.json()
+      if (data.data) {
+        setCategories(data.data.slice(0, 10))
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
     }
   }
 
   const fetchNewProducts = async () => {
-    if (!supabase) return
-
-    const { data } = await supabase
-      .from("products")
-      .select("id, name_ar, slug, price")
-      .eq("is_available", true)
-      .order("created_at", { ascending: false })
-      .limit(3)
-
-    if (data) {
-      setNewProducts(data)
+    try {
+      const response = await fetch("/api/products")
+      const data = await response.json()
+      if (data.data) {
+        setNewProducts(data.data.slice(0, 3))
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error)
     }
   }
 
@@ -149,7 +102,7 @@ export default function Header() {
               <Link href="/products" className="hover:text-gray-600 transition-colors">
                 تسوق
               </Link>
-              {isAdmin && (
+              {user?.is_admin && (
                 <Link
                   href="/admin"
                   className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
@@ -218,18 +171,18 @@ export default function Header() {
                           <User className="w-5 h-5 text-primary" />
                         </div>
                         <div className="text-right flex-1">
-                          <p className="font-semibold text-sm">{user.user_metadata?.full_name || "المستخدم"}</p>
-                         
+                          <p className="font-semibold text-sm">{user.name || "المستخدم"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>
                       </div>
-                      {isAdmin && (
+                      {user.is_admin && (
                         <div className="mt-2 px-2 py-1 bg-primary/10 rounded text-xs text-primary font-semibold text-center">
                           مدير النظام
                         </div>
                       )}
                     </div>
 
-                    {isAdmin && (
+                    {user.is_admin && (
                       <>
                         <DropdownMenuItem asChild className="cursor-pointer py-3">
                           <Link href="/admin" className="flex items-center gap-3">
@@ -339,7 +292,7 @@ export default function Header() {
                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span>من حن</span>
+                      <span>من نحن</span>
                     </Link>
                     <Link
                       href="/products"
@@ -399,7 +352,7 @@ export default function Header() {
                           d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span>الاسئلة</span>
+                      <span>الأسئلة</span>
                     </Link>
                   </nav>
 
@@ -514,18 +467,18 @@ export default function Header() {
                           <User className="w-5 h-5 text-primary" />
                         </div>
                         <div className="text-right flex-1">
-                          <p className="font-semibold text-sm">{user.user_metadata?.full_name || "المستخدم"}</p>
+                          <p className="font-semibold text-sm">{user.name || "المستخدم"}</p>
                           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>
                       </div>
-                      {isAdmin && (
+                      {user.is_admin && (
                         <div className="mt-2 px-2 py-1 bg-primary/10 rounded text-xs text-primary font-semibold text-center">
                           مدير النظام
                         </div>
                       )}
                     </div>
 
-                    {isAdmin && (
+                    {user.is_admin && (
                       <>
                         <DropdownMenuItem asChild className="cursor-pointer py-3">
                           <Link href="/admin" className="flex items-center gap-3">

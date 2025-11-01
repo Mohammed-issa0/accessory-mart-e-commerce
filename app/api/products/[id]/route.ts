@@ -7,8 +7,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const data = await apiClient.getProduct(params.id)
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Product API error:", error)
-    console.log("[v0] Using mock data as fallback")
+    console.error(" Product API error:", error)
+    console.log(" Using mock data as fallback")
 
     const product = mockProducts.find((p) => p.id.toString() === params.id)
     if (product) {

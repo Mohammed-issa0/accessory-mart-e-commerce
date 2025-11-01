@@ -10,6 +10,7 @@ interface User {
   full_name: string
   phone?: string
   avatar_url?: string
+  is_admin?: boolean
 }
 
 interface AuthContextType {
@@ -28,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     const token = getAuthToken()
+    console.log("[v0] Checking for existing token:", token ? "Found" : "Not found")
+
     if (!token) {
       setUser(null)
       setLoading(false)
@@ -35,7 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      console.log("[v0] Fetching user data with token...")
       const { user: userData } = await apiClient.getUser()
+      console.log("[v0] User data fetched:", userData)
       setUser(userData)
     } catch (error) {
       console.error("[v0] Failed to fetch user:", error)
@@ -52,9 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("[v0] Attempting login for:", email)
       const { token, user: userData } = await apiClient.login(email, password)
+      console.log("[v0] Login successful! Token received:", token ? "Yes" : "No")
+      console.log("[v0] User data:", userData)
+
       setAuthToken(token)
       setUser(userData)
+
+      console.log("[v0] Token saved to localStorage")
+      console.log("[v0] User is admin:", userData?.is_admin ? "Yes" : "No")
     } catch (error) {
       console.error("[v0] Login failed:", error)
       throw error
@@ -63,12 +75,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      console.log("[v0] Logging out...")
       await apiClient.logout()
     } catch (error) {
       console.error("[v0] Logout failed:", error)
     } finally {
       removeAuthToken()
       setUser(null)
+      console.log("[v0] Token removed, user logged out")
     }
   }
 

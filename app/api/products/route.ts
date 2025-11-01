@@ -6,7 +6,7 @@ import { mockProducts } from "@/lib/api/mock-data"
 export async function GET() {
   try {
     if (!isAPIConfigured()) {
-      console.log("[v0] Using mock data as fallback")
+      console.log(" Using mock data as fallback")
       return NextResponse.json({
         data: mockProducts,
         message: "Using mock data - external API not configured",
@@ -25,14 +25,14 @@ export async function GET() {
       products = response.data
     }
 
-    console.log("[v0] Products fetched successfully:", products.length, "items")
+    console.log(" Products fetched successfully:", products.length, "items")
 
     return NextResponse.json({
       data: products,
     })
   } catch (error: any) {
-    console.error("[v0] Products API error:", error)
-    console.log("[v0] Using mock data as fallback")
+    console.error(" Products API error:", error)
+    console.log(" Using mock data as fallback")
 
     return NextResponse.json({
       data: mockProducts,

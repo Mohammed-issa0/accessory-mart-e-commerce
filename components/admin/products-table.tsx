@@ -18,12 +18,14 @@ import {
 import { useRouter } from "next/navigation"
 
 interface Product {
-  id: string
+  id: string | number
   name_ar: string
   price: number
-  stock_quantity: number
-  category: { name_ar: string } | null
-  product_images: { image_url: string }[]
+  stock_quantity?: number
+  category_id?: number
+  category?: { name_ar: string } | null
+  product_images?: { image_url: string }[]
+  image_url?: string // Added support for direct image_url from new API
 }
 
 interface ProductsTableProps {
@@ -90,9 +92,9 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                      {product.product_images?.[0]?.image_url ? (
+                      {product.product_images?.[0]?.image_url || product.image_url ? (
                         <Image
-                          src={product.product_images[0].image_url || "/placeholder.svg"}
+                          src={product.product_images?.[0]?.image_url || product.image_url || "/placeholder.svg"}
                           alt={product.name_ar}
                           width={40}
                           height={40}
@@ -106,7 +108,7 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
                   </div>
                 </td>
                 <td className="py-3 px-4 text-sm text-gray-900">{product.price} ريال</td>
-                <td className="py-3 px-4 text-sm text-gray-900">{product.stock_quantity} قطعة</td>
+                <td className="py-3 px-4 text-sm text-gray-900">{product.stock_quantity || 0} قطعة</td>
                 <td className="py-3 px-4 text-sm text-gray-600">{product.category?.name_ar || "-"}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-2">

@@ -44,7 +44,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
 
       setUser(user)
     } catch (error) {
-      console.error("[v0] Error checking user:", error)
+      console.error(" Error checking user:", error)
     } finally {
       setLoading(false)
     }

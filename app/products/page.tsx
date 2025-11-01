@@ -3,6 +3,7 @@ import Footer from "@/components/8-footer"
 import ProductsGrid from "@/components/products/products-grid"
 import ProductsFilters from "@/components/products/products-filters"
 import { AlertCircle } from "lucide-react"
+import { getBaseUrl } from "@/lib/utils/get-base-url"
 
 export default async function ProductsPage({
   searchParams,
@@ -16,10 +17,7 @@ export default async function ProductsPage({
     color?: string
   }
 }) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
+  const baseUrl = getBaseUrl()
 
   let categories: any[] = []
   let products: any[] = []
@@ -50,7 +48,7 @@ export default async function ProductsPage({
       products = productsData.data || []
     }
   } catch (err: any) {
-    console.error("[v0] Error fetching data:", err)
+    console.error(" Error fetching data:", err)
     error = "فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى."
   }
 

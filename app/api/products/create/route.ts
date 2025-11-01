@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       .single()
 
     if (productError) {
-      console.error("[v0] Product insert error:", productError)
+      console.error(" Product insert error:", productError)
       return NextResponse.json(
         {
           message: "فشل في إضافة المنتج. تأكد من تفعيل صلاحيات قاعدة البيانات (RLS Policies)",
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       const { error: imagesError } = await supabase.from("product_images").insert(imageInserts)
 
       if (imagesError) {
-        console.error("[v0] Images insert error:", imagesError)
+        console.error(" Images insert error:", imagesError)
         // Product was created but images failed - still return success
       }
     }
@@ -75,14 +75,14 @@ export async function POST(request: Request) {
       const { error: colorsError } = await supabase.from("product_colors").insert(colorInserts)
 
       if (colorsError) {
-        console.error("[v0] Colors insert error:", colorsError)
+        console.error(" Colors insert error:", colorsError)
         // Product was created but colors failed - still return success
       }
     }
 
     return NextResponse.json({ success: true, product })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ message: "حدث خطأ في الخادم", error: String(error) }, { status: 500 })
   }
 }

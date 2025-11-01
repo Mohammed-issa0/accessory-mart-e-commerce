@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
+
 import { Plus, Search, Filter, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,60 +8,69 @@ import ProductsStats from "@/components/admin/products-stats"
 import ProductsChart from "@/components/admin/products-chart"
 import CategoryFilters from "@/components/admin/category-filters"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: { category?: string; showAll?: string }
-}) {
-  const supabase = await createClient()
-  const categoryId = searchParams.category
-  const showAll = searchParams.showAll === "true"
+export default function ProductsPage() {
+  const searchParams = useSearchParams()
+  const categoryId = searchParams.get("category")
+  const showAll = searchParams.get("showAll") === "true"
 
-  let productsQuery = supabase
-    .from("products")
-    .select(`
-      *,
-      category:categories(name_ar),
-      product_images(image_url)
-    `)
-    .order("created_at", { ascending: false })
+  const [products, setProducts] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (categoryId) {
-    productsQuery = productsQuery.eq("category_id", categoryId)
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch products
+        const productsRes = await fetch("/api/products")
+        const productsData = await productsRes.json()
+
+        // Fetch categories
+        const categoriesRes = await fetch("/api/categories")
+        const categoriesData = await categoriesRes.json()
+
+        console.log(" Admin products - Products fetched:", productsData.data?.length || 0)
+        console.log(" Admin products - Categories fetched:", categoriesData.data?.length || 0)
+
+        setProducts(productsData.data || [])
+        setCategories(categoriesData.data || [])
+      } catch (error) {
+        console.error(" Error fetching admin products data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Filter products by category if selected
+  const filteredProducts = categoryId ? products.filter((p) => p.category_id?.toString() === categoryId) : products
+
+  // Calculate categories with counts
+  const categoriesWithCounts = categories.map((category) => ({
+    ...category,
+    count: products.filter((p) => p.category_id === category.id).length,
+  }))
+
+  // Calculate statistics
+  const totalProducts = products.length
+  const activeCategories = categories.length
+  const outOfStock = products.filter((p) => p.stock_quantity === 0).length
+  const lowStock = products.filter((p) => p.stock_quantity > 0 && p.stock_quantity < 10).length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل المنتجات...</p>
+        </div>
+      </div>
+    )
   }
-
-  const { data: products } = await productsQuery
-
-  const { data: categories } = await supabase.from("categories").select("id, name_ar").eq("is_active", true)
-
-  const categoriesWithCounts = await Promise.all(
-    (categories || []).map(async (category) => {
-      const { count } = await supabase
-        .from("products")
-        .select("*", { count: "exact", head: true })
-        .eq("category_id", category.id)
-      return { ...category, count: count || 0 }
-    }),
-  )
-
-  const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
-
-  const { count: activeCategories } = await supabase
-    .from("categories")
-    .select("*", { count: "exact", head: true })
-    .eq("is_active", true)
-
-  const { count: outOfStock } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .eq("stock_quantity", 0)
-
-  const { count: lowStock } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .lt("stock_quantity", 10)
-    .gt("stock_quantity", 0)
 
   return (
     <div className="space-y-6">
@@ -80,18 +90,18 @@ export default async function ProductsPage({
         </div>
 
         <CategoryFilters
-          totalProducts={totalProducts || 0}
+          totalProducts={totalProducts}
           categories={categoriesWithCounts}
-          selectedCategory={categoryId}
+          selectedCategory={categoryId || undefined}
         />
       </div>
 
       {/* Stats */}
       <ProductsStats
-        totalProducts={totalProducts || 0}
-        activeCategories={activeCategories || 0}
-        outOfStock={outOfStock || 0}
-        lowStock={lowStock || 0}
+        totalProducts={totalProducts}
+        activeCategories={activeCategories}
+        outOfStock={outOfStock}
+        lowStock={lowStock}
       />
 
       {/* Search and Filters */}
@@ -109,9 +119,9 @@ export default async function ProductsPage({
           </Button>
         </div>
 
-        <ProductsTable products={products || []} showAll={showAll} />
+        <ProductsTable products={filteredProducts} showAll={showAll} />
 
-        {!showAll && (products?.length || 0) > 10 && (
+        {!showAll && filteredProducts.length > 10 && (
           <div className="mt-6 flex justify-center">
             <Link href="/admin/products?showAll=true">
               <Button variant="outline">عرض جميع المنتجات ({totalProducts})</Button>

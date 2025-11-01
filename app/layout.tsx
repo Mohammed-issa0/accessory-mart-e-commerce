@@ -12,7 +12,7 @@ const vazirmatn = Vazirmatn({ subsets: ["arabic"] })
 export const metadata: Metadata = {
   title: "Accessory Mart - متجر الاكسسوارات",
   description: "متجر الاكسسوارات - الأناقة في كل التفاصيل",
-  generator: "v0.app",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

@@ -1,10 +1,8 @@
 import CategorySectionClient from "./4-category-section-client"
+import { getBaseUrl } from "@/lib/utils/get-base-url"
 
 export default async function CategorySection() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
+  const baseUrl = getBaseUrl()
 
   let categories: any[] = []
 

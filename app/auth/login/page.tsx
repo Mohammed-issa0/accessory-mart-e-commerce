@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,13 +26,29 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      router.push("/")
-      router.refresh()
+
+      setTimeout(() => {
+        // Refresh to get updated user state
+        router.refresh()
+      }, 100)
     } catch (err: any) {
       setError(err.message || "فشل تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور.")
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (user && !loading) {
+      console.log(" User logged in, checking admin status:", user.is_admin)
+      if (user.is_admin) {
+        console.log(" Redirecting to admin panel...")
+        router.push("/admin")
+      } else {
+        console.log(" Redirecting to home page...")
+        router.push("/")
+      }
+    }
+  }, [user, loading, router])
 
   return (
     <div
