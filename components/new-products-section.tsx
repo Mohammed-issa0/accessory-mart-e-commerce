@@ -20,13 +20,15 @@ export default async function NewProductsSection() {
   const newProducts = products.slice(0, 3)
 
   const formattedProducts = newProducts.map((product: any) => ({
-    id: product.id,
-    name: product.name_ar,
-    price: product.price,
+    id: String(product.id),
+    name: product.name_ar || product.name || "منتج",
+    price: Number(product.price) || 0,
     slug: product.slug,
-    image: product.image_url || "/placeholder.svg?height=400&width=400",
-    colors: product.colors || [],
+    image: product.image_url || product.images?.[0]?.url || "/placeholder.svg?height=400&width=400",
+    colors: Array.isArray(product.colors) ? product.colors : [],
   }))
+
+  console.log("[v0] Formatted new products for client:", formattedProducts.length)
 
   return <NewProductsClient products={formattedProducts} />
 }

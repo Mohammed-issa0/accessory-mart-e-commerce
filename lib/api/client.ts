@@ -32,13 +32,25 @@ export class APIClient {
         headers,
       })
 
+      console.log("[v0] Response status:", response.status, response.statusText)
+      console.log("[v0] Response headers:", Object.fromEntries(response.headers.entries()))
+
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Request failed" }))
         console.error("[v0] API request failed:", error)
         throw new Error(error.message || `HTTP ${response.status}`)
       }
 
-      return response.json()
+      const data = await response.json()
+      console.log("[v0] Response data structure:", {
+        isArray: Array.isArray(data),
+        keys: typeof data === "object" ? Object.keys(data) : "not an object",
+        dataLength: Array.isArray(data)
+          ? data.length
+          : data?.data?.length || data?.products?.length || data?.categories?.length || "unknown",
+      })
+
+      return data
     } catch (error) {
       console.error("[v0] API request error:", error)
       console.error("[v0] Make sure your backend is running at:", this.baseURL)

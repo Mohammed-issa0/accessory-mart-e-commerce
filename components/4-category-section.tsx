@@ -18,11 +18,13 @@ export default async function CategorySection() {
   }
 
   const formattedCategories = categories.slice(0, 12).map((cat: any) => ({
-    id: cat.id,
-    name: cat.name_ar,
+    id: String(cat.id),
+    name: cat.name || cat.name_ar || "فئة",
     slug: cat.slug,
-    icon: cat.icon || "/placeholder.svg?height=48&width=48",
+    icon: cat.icon || cat.images?.[0]?.url || "/placeholder.svg?height=48&width=48",
   }))
+
+  console.log("[v0] Formatted categories for client:", formattedCategories.length)
 
   return <CategorySectionClient categories={formattedCategories} />
 }
