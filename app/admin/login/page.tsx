@@ -1,38 +1,28 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import AdminLoginForm from "@/components/admin/admin-login-form"
+"use client"
 
-export default async function AdminLoginPage() {
-  const supabase = await createClient()
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/contexts/auth-context"
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export default function AdminLoginPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
 
-  if (user) {
-    // Check if user is admin
-    const { data: admin } = await supabase
-      .from("admins")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .single()
-
-    if (admin) {
-      redirect("/admin")
+  useEffect(() => {
+    // If user is already logged in and is admin, redirect to admin dashboard
+    if (user && user.is_admin) {
+      router.push("/admin")
+    } else if (!loading) {
+      // Otherwise redirect to main login page
+      router.push("/auth/login")
     }
-  }
+  }, [user, loading, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100" dir="rtl">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Accessory Admin</h1>
-            <p className="text-gray-600">تسجيل الدخول إلى لوحة التحكم</p>
-          </div>
-          <AdminLoginForm />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <p className="mt-4 text-gray-600">جاري التحويل...</p>
       </div>
     </div>
   )

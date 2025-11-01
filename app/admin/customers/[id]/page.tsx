@@ -1,31 +1,63 @@
-import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
-import CustomerDetailsClient from "@/components/admin/customer-details-client"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/contexts/auth-context"
+import { AlertCircle } from "lucide-react"
 
 type Props = {
   params: Promise<{ id: string }>
 }
 
-export default async function CustomerDetailPage({ params }: Props) {
-  const { id } = await params
-  const supabase = await createClient()
+export default function CustomerDetailPage({ params }: Props) {
+  const { user, loading } = useAuth()
+  const [mounted, setMounted] = useState(false)
+  const [customerId, setCustomerId] = useState<string>("")
 
-  // Fetch customer details
-  const { data: customer } = await supabase.from("customers").select("*").eq("id", id).maybeSingle()
+  useEffect(() => {
+    setMounted(true)
+    params.then((p) => setCustomerId(p.id))
+  }, [params])
 
-  if (!customer) {
-    notFound()
+  if (loading || !mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">جاري التحميل...</p>
+        </div>
+      </div>
+    )
   }
 
-  // Fetch customer orders
-  const { data: orders } = await supabase
-    .from("orders")
-    .select(`
-      *,
-      items:order_items(*)
-    `)
-    .eq("customer_id", id)
-    .order("created_at", { ascending: false })
+  if (!user || !user.is_admin) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/admin/login"
+    }
+    return null
+  }
 
-  return <CustomerDetailsClient customer={customer} orders={orders || []} />
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <AlertCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">تفاصيل العميل قيد التطوير</h2>
+        <p className="text-gray-600 mb-2">معرف العميل: {customerId}</p>
+        <p className="text-gray-600">يتطلب توفير API endpoints التالية:</p>
+        <ul className="text-right text-sm text-gray-700 space-y-2 max-w-md mx-auto mt-4">
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/customers/:id</code> - لجلب تفاصيل العميل
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/customers/:id/orders</code> - لجلب طلبات العميل
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
 }

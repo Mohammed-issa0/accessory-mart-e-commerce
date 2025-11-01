@@ -1,109 +1,39 @@
 "use client"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import OrdersPageClient from "@/components/admin/orders-page-client"
+
+import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/contexts/auth-context"
 import { AlertCircle } from "lucide-react"
 
-export default async function OrdersPage({
-  searchParams,
-}: {
-  searchParams: { status?: string; search?: string }
-}) {
-  const supabase = await createClient()
+export default function OrdersPage() {
+  const { user, loading } = useAuth()
+  const [mounted, setMounted] = useState(false)
 
-  // Check if user is admin
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  if (!user) {
-    redirect("/admin/login")
-  }
-
-  const { data: userData } = await supabase.from("users").select("is_admin").eq("id", user.id).single()
-
-  if (!userData?.is_admin) {
-    redirect("/")
-  }
-
-  // Fetch orders with filters
-  let query = supabase
-    .from("orders")
-    .select(
-      `
-      *,
-      order_items (
-        id,
-        product_name,
-        product_image,
-        quantity,
-        price,
-        total
-      ),
-      receipt_url,
-      delivery_address,
-      customer_whatsapp
-    `,
-    )
-    .order("created_at", { ascending: false })
-
-  if (searchParams.status && searchParams.status !== "all") {
-    query = query.eq("status", searchParams.status)
-  }
-
-  if (searchParams.search) {
-    query = query.or(
-      `order_number.ilike.%${searchParams.search}%,customer_name.ilike.%${searchParams.search}%,customer_email.ilike.%${searchParams.search}%`,
+  // Wait for auth to load
+  if (loading || !mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">جاري التحميل...</p>
+        </div>
+      </div>
     )
   }
 
-  const { data: orders } = await query
-
-  // Get counts for each status
-  const { count: totalCount } = await supabase.from("orders").select("*", { count: "exact", head: true })
-
-  const { count: newCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "new")
-
-  const { count: processingCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "processing")
-
-  const { count: readyCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "ready")
-
-  const { count: shippingCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "shipping")
-
-  const { count: completedCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "completed")
-
-  const { count: cancelledCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "cancelled")
-
-  const statusCounts = {
-    all: totalCount || 0,
-    new: newCount || 0,
-    processing: processingCount || 0,
-    ready: readyCount || 0,
-    shipping: shippingCount || 0,
-    completed: completedCount || 0,
-    cancelled: cancelledCount || 0,
+  // Redirect if not logged in or not admin
+  if (!user || !user.is_admin) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/admin/login"
+    }
+    return null
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">إدارة الطلبات</h1>
         <p className="text-gray-600">عرض وإدارة جميع الطلبات</p>
@@ -134,8 +64,6 @@ export default async function OrdersPage({
           </li>
         </ul>
       </div>
-
-      <OrdersPageClient orders={orders || []} statusCounts={statusCounts} />
     </div>
   )
 }
