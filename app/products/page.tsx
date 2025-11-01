@@ -28,6 +28,12 @@ export default async function ProductsPage({
     const categoriesRes = await fetch(`${baseUrl}/api/categories`, {
       cache: "no-store",
     })
+
+    if (!categoriesRes.ok) {
+      console.error("[v0] Categories fetch failed with status:", categoriesRes.status)
+      throw new Error(`فشل جلب الفئات: ${categoriesRes.status}`)
+    }
+
     const categoriesData = await categoriesRes.json()
 
     if (categoriesData.error) {
@@ -40,6 +46,12 @@ export default async function ProductsPage({
     const productsRes = await fetch(`${baseUrl}/api/products`, {
       cache: "no-store",
     })
+
+    if (!productsRes.ok) {
+      console.error("[v0] Products fetch failed with status:", productsRes.status)
+      throw new Error(`فشل جلب المنتجات: ${productsRes.status}`)
+    }
+
     const productsData = await productsRes.json()
 
     if (productsData.error) {
@@ -48,8 +60,8 @@ export default async function ProductsPage({
       products = productsData.data || []
     }
   } catch (err: any) {
-    console.error(" Error fetching data:", err)
-    error = "فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى."
+    console.error("[v0] Error fetching data:", err)
+    error = err.message || "فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى."
   }
 
   // Apply filters
@@ -122,10 +134,7 @@ export default async function ProductsPage({
               <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-red-900 mb-2">خطأ في الاتصال</h3>
               <p className="text-red-700 mb-4">{error}</p>
-              <p className="text-sm text-red-600">
-                يرجى التأكد من إعداد متغير البيئة <code className="bg-red-100 px-2 py-1 rounded">EXTERNAL_API_URL</code>{" "}
-                في قسم Vars
-              </p>
+              <p className="text-sm text-red-600">يرجى تحديث الصفحة أو المحاولة مرة أخرى لاحقاً</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
