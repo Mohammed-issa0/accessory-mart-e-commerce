@@ -1,27 +1,21 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
 
-export default async function SalesByCategory() {
-  const supabase = await createClient()
-
-  const { data: categories } = await supabase
-    .from("categories")
-    .select(`
-      name_ar,
-      products(sales_count)
-    `)
-    .limit(5)
-
-  const categoryData =
-    categories?.map((cat) => ({
-      name: cat.name_ar,
-      sales: cat.products?.reduce((sum: number, p: any) => sum + (p.sales_count || 0), 0) || 0,
-    })) || []
+export default function SalesByCategory() {
+  // Mock data for sales by category (will be replaced when API has sales data)
+  const categoryData = [
+    { name: "إكسسوارات الهواتف", sales: 245 },
+    { name: "الشواحن والكابلات", sales: 198 },
+    { name: "السماعات", sales: 167 },
+    { name: "حوامل وحافظات", sales: 134 },
+    { name: "أخرى", sales: 89 },
+  ]
 
   const maxSales = Math.max(...categoryData.map((c) => c.sales), 1)
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
       <h2 className="text-lg font-bold text-gray-900 mb-6">المبيعات حسب الفئة</h2>
+      <p className="text-xs text-gray-500 mb-4">(بيانات تجريبية - سيتم ربطها بالـ API لاحقاً)</p>
       <div className="space-y-4">
         {categoryData.map((category) => (
           <div key={category.name}>
@@ -38,9 +32,6 @@ export default async function SalesByCategory() {
           </div>
         ))}
       </div>
-      <button className="w-full mt-4 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-        تصفح كافة الفئات
-      </button>
     </div>
   )
 }

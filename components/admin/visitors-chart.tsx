@@ -1,31 +1,19 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
+
 import VisitorsChartClient from "./visitors-chart-client"
 
-export default async function VisitorsChart() {
-  const supabase = await createClient()
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("created_at")
-    .gte("created_at", today.toISOString())
-    .order("created_at")
-
-  // Group orders by 3-hour intervals
-  const hourlyData = Array.from({ length: 8 }, (_, i) => ({
-    time: `${i * 3} ${i * 3 < 12 ? "AM" : "PM"}`,
-    orders: 0,
-  }))
-
-  orders?.forEach((order) => {
-    const hour = new Date(order.created_at).getHours()
-    const interval = Math.floor(hour / 3)
-    if (interval < 8) {
-      hourlyData[interval].orders++
-    }
-  })
+export default function VisitorsChart() {
+  // Mock data for visitors chart (will be replaced when API has orders endpoint)
+  const hourlyData = [
+    { time: "0 AM", orders: 5 },
+    { time: "3 AM", orders: 2 },
+    { time: "6 AM", orders: 8 },
+    { time: "9 AM", orders: 15 },
+    { time: "12 PM", orders: 22 },
+    { time: "3 PM", orders: 18 },
+    { time: "6 PM", orders: 12 },
+    { time: "9 PM", orders: 7 },
+  ]
 
   return <VisitorsChartClient data={hourlyData} />
 }

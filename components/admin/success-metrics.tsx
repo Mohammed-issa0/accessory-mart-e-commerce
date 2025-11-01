@@ -1,41 +1,17 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
 
-export default async function SuccessMetrics() {
-  const supabase = await createClient()
-
-  const { count: totalOrders } = await supabase.from("orders").select("*", { count: "exact", head: true })
-
-  const { count: completedOrders } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "completed")
-
-  const { count: shippingOrders } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "shipping")
-
-  const { count: totalProducts } = await supabase.from("products").select("*", { count: "exact", head: true })
-
-  const { count: availableProducts } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .eq("is_available", true)
-
-  // Calculate percentages
-  const completionRate = totalOrders ? Math.round((completedOrders! / totalOrders) * 100) : 0
-  const shippingRate = totalOrders ? Math.round((shippingOrders! / totalOrders) * 100) : 0
-  const availabilityRate = totalProducts ? Math.round((availableProducts! / totalProducts) * 100) : 0
-
+export default function SuccessMetrics() {
+  // Mock data for success metrics (will be replaced when API has orders endpoint)
   const metrics = [
-    { title: "إتمام الطلبات", percentage: completionRate },
-    { title: "قيد التوصيل", percentage: shippingRate },
-    { title: "المنتجات المتاحة", percentage: availabilityRate },
+    { title: "إتمام الطلبات", percentage: 87 },
+    { title: "قيد التوصيل", percentage: 12 },
+    { title: "المنتجات المتاحة", percentage: 94 },
   ]
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
       <h2 className="text-lg font-bold text-gray-900 mb-6">إحصائيات المتجر</h2>
+      <p className="text-xs text-gray-500 mb-4">(بيانات تجريبية - سيتم ربطها بالـ API لاحقاً)</p>
       <div className="space-y-4">
         {metrics.map((metric) => (
           <div key={metric.title}>
