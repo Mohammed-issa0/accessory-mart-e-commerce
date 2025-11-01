@@ -185,7 +185,7 @@ export default function Header() {
                     {user.is_admin && (
                       <>
                         <DropdownMenuItem asChild className="cursor-pointer py-3">
-                          <Link href="/admin" className="flex items-center gap-3">
+                          <Link href="/admin" className="flex items-center gap-3 w-full">
                             <LayoutDashboard className="w-4 h-4" />
                             <span>لوحة التحكم</span>
                           </Link>
@@ -195,28 +195,28 @@ export default function Header() {
                     )}
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account" className="flex items-center gap-3">
+                      <Link href="/account" className="flex items-center gap-3 w-full">
                         <User className="w-4 h-4" />
                         <span>حسابي</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account/orders" className="flex items-center gap-3">
+                      <Link href="/account/orders" className="flex items-center gap-3 w-full">
                         <Package className="w-4 h-4" />
                         <span>طلباتي</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/wishlist" className="flex items-center gap-3">
+                      <Link href="/account/wishlist" className="flex items-center gap-3 w-full">
                         <Heart className="w-4 h-4" />
                         <span>المفضلة</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account/settings" className="flex items-center gap-3">
+                      <Link href="/account/settings" className="flex items-center gap-3 w-full">
                         <Settings className="w-4 h-4" />
                         <span>الإعدادات</span>
                       </Link>
@@ -247,6 +247,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Mobile Header */}
       <div className="md:hidden">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-3">
@@ -431,7 +432,7 @@ export default function Header() {
 
             {/* Icons */}
             <div className="flex items-center gap-1">
-              <Link href="/wishlist">
+              <Link href="/account/wishlist">
                 <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                   <Heart className="h-5 w-5" />
                   {wishlistCount > 0 && (
@@ -442,7 +443,7 @@ export default function Header() {
                 </Button>
               </Link>
 
-              <Link href="/cart">
+              <Link href="/account/cart">
                 <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
@@ -481,7 +482,7 @@ export default function Header() {
                     {user.is_admin && (
                       <>
                         <DropdownMenuItem asChild className="cursor-pointer py-3">
-                          <Link href="/admin" className="flex items-center gap-3">
+                          <Link href="/admin" className="flex items-center gap-3 w-full">
                             <LayoutDashboard className="w-4 h-4" />
                             <span>لوحة التحكم</span>
                           </Link>
@@ -491,28 +492,28 @@ export default function Header() {
                     )}
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account" className="flex items-center gap-3">
+                      <Link href="/account" className="flex items-center gap-3 w-full">
                         <User className="w-4 h-4" />
                         <span>حسابي</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account/orders" className="flex items-center gap-3">
+                      <Link href="/account/orders" className="flex items-center gap-3 w-full">
                         <Package className="w-4 h-4" />
                         <span>طلباتي</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/wishlist" className="flex items-center gap-3">
+                      <Link href="/account/wishlist" className="flex items-center gap-3 w-full">
                         <Heart className="w-4 h-4" />
                         <span>المفضلة</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild className="cursor-pointer py-3">
-                      <Link href="/account/settings" className="flex items-center gap-3">
+                      <Link href="/account/settings" className="flex items-center gap-3 w-full">
                         <Settings className="w-4 h-4" />
                         <span>الإعدادات</span>
                       </Link>

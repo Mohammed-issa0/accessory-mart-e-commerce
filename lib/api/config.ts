@@ -13,9 +13,17 @@ export const API_CONFIG = {
     // Products
     products: "/products",
     product: (id: string) => `/products/${id}`,
+    // Admin product endpoints for create, update, delete
+    createProduct: "/admin/products",
+    updateProduct: (id: string) => `/admin/products/${id}`,
+    deleteProduct: (id: string) => `/admin/products/${id}`,
     // Categories
     categories: "/categories",
     category: (id: string) => `/categories/${id}`,
+    // Admin category endpoints for create, update, delete
+    createCategory: "/admin/categories",
+    updateCategory: (id: string) => `/admin/categories/${id}`,
+    deleteCategory: (id: string) => `/admin/categories/${id}`,
   },
 }
 

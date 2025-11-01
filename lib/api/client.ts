@@ -33,7 +33,6 @@ export class APIClient {
       })
 
       console.log("[v0] Response status:", response.status, response.statusText)
-      console.log("[v0] Response headers:", Object.fromEntries(response.headers.entries()))
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Request failed" }))
@@ -45,15 +44,11 @@ export class APIClient {
       console.log("[v0] Response data structure:", {
         isArray: Array.isArray(data),
         keys: typeof data === "object" ? Object.keys(data) : "not an object",
-        dataLength: Array.isArray(data)
-          ? data.length
-          : data?.data?.length || data?.products?.length || data?.categories?.length || "unknown",
       })
 
       return data
     } catch (error) {
       console.error("[v0] API request error:", error)
-      console.error("[v0] Make sure your backend is running at:", this.baseURL)
       throw error
     }
   }
@@ -81,12 +76,33 @@ export class APIClient {
   }
 
   // Products methods
-  async getProducts() {
-    return this.request<{ products: any[] }>(API_CONFIG.endpoints.products)
+  async getProducts(page?: number) {
+    const endpoint = page ? `${API_CONFIG.endpoints.products}?page=${page}` : API_CONFIG.endpoints.products
+    return this.request<{ products: any[] }>(endpoint)
   }
 
   async getProduct(id: string) {
     return this.request<{ product: any }>(API_CONFIG.endpoints.product(id))
+  }
+
+  async createProduct(formData: FormData) {
+    return this.request<{ product: any; message: string }>(API_CONFIG.endpoints.createProduct, {
+      method: "POST",
+      body: formData,
+    })
+  }
+
+  async updateProduct(id: string, formData: FormData) {
+    return this.request<{ product: any; message: string }>(API_CONFIG.endpoints.updateProduct(id), {
+      method: "POST",
+      body: formData,
+    })
+  }
+
+  async deleteProduct(id: string) {
+    return this.request<{ message: string }>(API_CONFIG.endpoints.deleteProduct(id), {
+      method: "DELETE",
+    })
   }
 
   // Categories methods
@@ -96,6 +112,26 @@ export class APIClient {
 
   async getCategory(id: string) {
     return this.request<{ category: any }>(API_CONFIG.endpoints.category(id))
+  }
+
+  async createCategory(formData: FormData) {
+    return this.request<{ category: any; message: string }>(API_CONFIG.endpoints.createCategory, {
+      method: "POST",
+      body: formData,
+    })
+  }
+
+  async updateCategory(id: string, formData: FormData) {
+    return this.request<{ category: any; message: string }>(API_CONFIG.endpoints.updateCategory(id), {
+      method: "POST",
+      body: formData,
+    })
+  }
+
+  async deleteCategory(id: string) {
+    return this.request<{ message: string }>(API_CONFIG.endpoints.deleteCategory(id), {
+      method: "DELETE",
+    })
   }
 }
 

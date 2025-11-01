@@ -210,7 +210,7 @@ export default function SettingsPage() {
           {/* Sign Out */}
           <div className="bg-card border rounded-lg p-6">
             <h2 className="text-xl font-bold mb-4">تسجيل الخروج</h2>
-            <p className="text-muted-foreground mb-4">سيتم تسجيل خروجك من جميع الأجهزة</p>
+            <p className="text-muted-foreground mb-4">سيتم تسجيل خروجك من جمي�� الأجهزة</p>
             <Button variant="destructive" onClick={handleSignOut}>
               تسجيل الخروج
             </Button>
