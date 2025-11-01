@@ -1,6 +1,8 @@
+"use client"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import OrdersPageClient from "@/components/admin/orders-page-client"
+import { AlertCircle } from "lucide-react"
 
 export default async function OrdersPage({
   searchParams,
@@ -100,5 +102,40 @@ export default async function OrdersPage({
     cancelled: cancelledCount || 0,
   }
 
-  return <OrdersPageClient orders={orders || []} statusCounts={statusCounts} />
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">إدارة الطلبات</h1>
+        <p className="text-gray-600">عرض وإدارة جميع الطلبات</p>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <AlertCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">قسم الطلبات قيد التطوير</h2>
+        <p className="text-gray-600 mb-4">لعرض وإدارة الطلبات، يجب توفير API endpoints التالية من الباك اند:</p>
+        <ul className="text-right text-sm text-gray-700 space-y-2 max-w-md mx-auto">
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/orders</code> - لجلب قائمة الطلبات
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/orders/:id</code> - لجلب تفاصيل طلب معين
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">PUT /api/orders/:id/status</code> - لتحديث حالة الطلب
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <OrdersPageClient orders={orders || []} statusCounts={statusCounts} />
+    </div>
+  )
 }

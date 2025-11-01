@@ -1,41 +1,40 @@
-import { createClient } from "@/lib/supabase/server"
-import CustomersPageClient from "@/components/admin/customers-page-client"
+"use client"
 
-export default async function CustomersPage() {
-  const supabase = await createClient()
+import { Users } from "lucide-react"
 
-  const { data: users } = await supabase.from("users").select("*").order("created_at", { ascending: false })
+export default function CustomersPage() {
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">إدارة العملاء</h1>
+        <p className="text-gray-600">عرض وإدارة بيانات العملاء</p>
+      </div>
 
-  // Get order counts for each user by joining through customers table
-  const customersWithOrders = await Promise.all(
-    (users || []).map(async (user) => {
-      // Find customer record for this user
-      const { data: customer } = await supabase.from("customers").select("id").eq("user_id", user.id).maybeSingle()
-
-      let orderCount = 0
-      if (customer) {
-        // Count orders for this customer
-        const { count } = await supabase
-          .from("orders")
-          .select("*", { count: "exact", head: true })
-          .eq("customer_id", customer.id)
-
-        orderCount = count || 0
-      }
-
-      return {
-        id: user.id,
-        full_name: user.full_name || "غير محدد",
-        email: user.email || "",
-        phone: user.phone || "",
-        avatar_url: user.avatar_url || "",
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-        total_orders: orderCount,
-        is_admin: user.is_admin || false,
-      }
-    }),
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <Users className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">قسم العملاء قيد التطوير</h2>
+        <p className="text-gray-600 mb-4">لعرض وإدارة العملاء، يجب توفير API endpoints التالية من الباك اند:</p>
+        <ul className="text-right text-sm text-gray-700 space-y-2 max-w-md mx-auto">
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/customers</code> - لجلب قائمة العملاء
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/customers/:id</code> - لجلب تفاصيل عميل معين
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500">•</span>
+            <span>
+              <code className="bg-gray-100 px-2 py-1 rounded">GET /api/customers/:id/orders</code> - لجلب طلبات العميل
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
   )
-
-  return <CustomersPageClient customers={customersWithOrders || []} />
 }
