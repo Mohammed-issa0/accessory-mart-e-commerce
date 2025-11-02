@@ -39,14 +39,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !loading) {
-      console.log(" User logged in, checking admin status:", user.is_admin)
-      if (user.is_admin) {
-        console.log(" Redirecting to admin panel...")
-        router.push("/admin")
-      } else {
-        console.log(" Redirecting to home page...")
         router.push("/")
-      }
     }
   }, [user, loading, router])
 
