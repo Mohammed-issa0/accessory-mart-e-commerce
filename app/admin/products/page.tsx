@@ -25,7 +25,7 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const productsData = await apiClient.getProducts()
+        const productsData = await apiClient.getAllProducts()
         const categoriesData = await apiClient.getCategories()
 
         console.log("[v0] Admin products - Products response:", productsData)

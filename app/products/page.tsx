@@ -3,7 +3,7 @@ import Footer from "@/components/8-footer"
 import ProductsGrid from "@/components/products/products-grid"
 import ProductsFilters from "@/components/products/products-filters"
 import { AlertCircle } from "lucide-react"
-import { getBaseUrl } from "@/lib/utils/get-base-url"
+import { apiClient } from "@/lib/api/client"
 
 export default async function ProductsPage({
   searchParams,
@@ -17,47 +17,28 @@ export default async function ProductsPage({
     color?: string
   }
 }) {
-  const baseUrl = getBaseUrl()
-
   let categories: any[] = []
   let products: any[] = []
   let error: string | null = null
 
   try {
-    // Fetch categories
-    const categoriesRes = await fetch(`${baseUrl}/api/categories`, {
-      cache: "no-store",
-    })
-
-    if (!categoriesRes.ok) {
-      console.error("[v0] Categories fetch failed with status:", categoriesRes.status)
-      throw new Error(`فشل جلب الفئات: ${categoriesRes.status}`)
-    }
-
-    const categoriesData = await categoriesRes.json()
+    const categoriesData = await apiClient.getCategories()
+    console.log("[v0] Categories response:", categoriesData)
 
     if (categoriesData.error) {
       error = categoriesData.error
     } else {
-      categories = categoriesData.data || []
+      categories = categoriesData.data || categoriesData.categories || []
     }
 
-    // Fetch products
-    const productsRes = await fetch(`${baseUrl}/api/products`, {
-      cache: "no-store",
-    })
-
-    if (!productsRes.ok) {
-      console.error("[v0] Products fetch failed with status:", productsRes.status)
-      throw new Error(`فشل جلب المنتجات: ${productsRes.status}`)
-    }
-
-    const productsData = await productsRes.json()
+    const productsData = await apiClient.getAllProducts()
+    console.log("[v0] Products response:", productsData)
+    console.log("[v0] Total products fetched:", productsData.data?.length)
 
     if (productsData.error) {
       error = productsData.error
     } else {
-      products = productsData.data || []
+      products = productsData.data || productsData.products || []
     }
   } catch (err: any) {
     console.error("[v0] Error fetching data:", err)
@@ -106,10 +87,10 @@ export default async function ProductsPage({
     name: product.name_ar,
     price: product.price,
     slug: product.slug,
-    stock: product.stock_quantity,
-    image: product.image_url || "/placeholder.svg?height=400&width=400",
+    stock: product.stock_quantity || 0,
+    image: product.images?.[0]?.url || product.image_url || "/placeholder.svg?height=400&width=400",
     colors: product.colors || [],
-    category: product.category_name_ar || "",
+    category: product.category?.name_ar || product.category_name_ar || "",
   }))
 
   if (searchParams.color && !error) {

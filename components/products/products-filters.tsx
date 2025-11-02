@@ -93,7 +93,7 @@ export default function ProductsFilters({ categories }: { categories: Category[]
                   : "hover:bg-gray-100"
               }`}
             >
-              {category.name_ar}
+              {category.name}
             </button>
           ))}
         </div>

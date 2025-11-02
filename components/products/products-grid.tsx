@@ -110,31 +110,27 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                       {product.stock} متبقي
                     </span>
                   )}
-                  {product.stock === 0 && (
-                    <span className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                      نفذت الكمية
-                    </span>
-                  )}
+                  
                 </div>
               </Link>
 
               <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl p-4 shadow-lg">
                 {product.category && <p className="text-xs text-gray-500 mb-1">{product.category}</p>}
 
-                {/* Color circles and product name */}
+                {/* Color slider and product name */}
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  {/* Color circles on the left */}
                   {product.colors.length > 0 && (
-                    <div className="flex gap-1">
-                      {product.colors.slice(0, 3).map((color, index) => (
-                        <div
-                          key={index}
-                          className={`w-5 h-5 rounded-full border-2 ${
-                            index === 0 ? "border-gray-800" : "border-gray-300"
-                          }`}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
+                    <div className="flex-shrink-0 max-w-[80px] overflow-x-auto scrollbar-hide">
+                      <div className="flex gap-1.5">
+                        {product.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
 

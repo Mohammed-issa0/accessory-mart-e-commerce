@@ -215,7 +215,7 @@ export default function AddressesPage() {
 
                 <div className="text-right">
                   <Label htmlFor="delivery_address">
-                    عنوان التوصيل <span className="text-red-500">*</span>
+                    ��نوان التوصيل <span className="text-red-500">*</span>
                   </Label>
                   <textarea
                     id="delivery_address"

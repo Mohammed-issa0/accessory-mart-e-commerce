@@ -87,6 +87,51 @@ export class APIClient {
     return this.request<{ products: any[] }>(endpoint)
   }
 
+  async getAllProducts() {
+    let allProducts: any[] = []
+    const currentPage = 1
+    let lastPage = 1
+
+    try {
+      // Fetch first page to get pagination info
+      const firstPageData = await this.getProducts(1)
+      console.log("[v0] First page response:", firstPageData)
+
+      // Extract products and pagination metadata
+      const products = firstPageData.data || firstPageData.products || []
+      allProducts = [...products]
+
+      // Get pagination metadata
+      const meta = firstPageData.meta
+      if (meta && meta.last_page) {
+        lastPage = meta.last_page
+        console.log("[v0] Total pages:", lastPage)
+
+        // Fetch remaining pages
+        for (let page = 2; page <= lastPage; page++) {
+          const pageData = await this.getProducts(page)
+          const pageProducts = pageData.data || pageData.products || []
+          allProducts = [...allProducts, ...pageProducts]
+          console.log(`[v0] Fetched page ${page}/${lastPage}, total products so far:`, allProducts.length)
+        }
+      }
+
+      console.log("[v0] Total products fetched:", allProducts.length)
+
+      return {
+        data: allProducts,
+        meta: {
+          total: allProducts.length,
+          current_page: 1,
+          last_page: lastPage,
+        },
+      }
+    } catch (error) {
+      console.error("[v0] Error fetching all products:", error)
+      throw error
+    }
+  }
+
   async getProduct(id: string) {
     return this.request<{ product: any }>(API_CONFIG.endpoints.product(id))
   }
