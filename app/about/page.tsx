@@ -9,7 +9,7 @@ export default function AboutPage() {
 
       <main className="flex-1 pt-32 pb-16">
         <div className="container mx-auto px-4">
-          {/* Hero Section */}
+          {/* Hero1 Section */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">من نحن</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
