@@ -4,6 +4,7 @@
  */
 export function getBaseUrl() {
   // In browser, use relative URLs
+  return "https://emart0.vercel.app/"
   if (typeof window !== "undefined") {
     return ""
   }
