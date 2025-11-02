@@ -9,7 +9,7 @@ import { useState } from "react"
 
 interface Category {
   id: string
-  name_ar: string
+  name: string
   slug: string
 }
 

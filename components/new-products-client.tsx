@@ -56,6 +56,8 @@ export default function NewProductsClient({ products }: { products: Product[] })
       description: `تم إضافة ${product.name} إلى سلة التسوق`,
     })
   }
+  console.log("proooooooooo")
+  console.log(products[0])
 
   return (
     <section className="py-12 md:py-16 bg-white">

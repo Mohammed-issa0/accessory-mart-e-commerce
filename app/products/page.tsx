@@ -49,7 +49,7 @@ export default async function ProductsPage({
   if (searchParams.category && !error) {
     const category = categories.find((c: any) => c.slug === searchParams.category)
     if (category) {
-      products = products.filter((p: any) => p.category_id === category.id)
+      products = products.filter((p: any) => p.category?.id === category.id)
     }
   }
 
