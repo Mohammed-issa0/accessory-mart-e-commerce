@@ -2,8 +2,6 @@ export const API_CONFIG = {
   // Default to https://ecommerce-api.wildfleet.net/api (real backend URL)
   // You can override this by setting NEXT_PUBLIC_EXTERNAL_API_URL or EXTERNAL_API_URL environment variable
   baseURL:
-    process.env.NEXT_PUBLIC_EXTERNAL_API_URL ||
-    process.env.EXTERNAL_API_URL ||
     "https://ecommerce-api.wildfleet.net/api",
   endpoints: {
     // Auth

@@ -61,7 +61,7 @@ export default async function ProductsPage({
     }
   } catch (err: any) {
     console.error("[v0] Error fetching data:", err)
-    error = err.message || "فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى."
+    error = err.message
   }
 
   // Apply filters
