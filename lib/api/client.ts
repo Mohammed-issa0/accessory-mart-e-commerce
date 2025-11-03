@@ -5,7 +5,6 @@ export class APIClient {
 
   constructor() {
     this.baseURL = API_CONFIG.baseURL
-    console.log("[v0] API Client initialized with base URL:", this.baseURL)
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -24,7 +23,6 @@ export class APIClient {
     }
 
     const fullURL = `${this.baseURL}${endpoint}`
-    console.log("[v0] Fetching from external API:", fullURL)
 
     try {
       const response = await fetch(fullURL, {
@@ -32,11 +30,8 @@ export class APIClient {
         headers,
       })
 
-      console.log("[v0] Response status:", response.status, response.statusText)
-
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Request failed" }))
-        console.error("[v0] API request failed:", error)
         if (error.errors) {
           const errorMessages = Object.entries(error.errors)
             .map(([field, messages]) => `${field}: ${(messages as string[]).join(", ")}`)
@@ -47,14 +42,8 @@ export class APIClient {
       }
 
       const data = await response.json()
-      console.log("[v0] Response data structure:", {
-        isArray: Array.isArray(data),
-        keys: typeof data === "object" ? Object.keys(data) : "not an object",
-      })
-
       return data
     } catch (error) {
-      console.error("[v0] API request error:", error)
       throw error
     }
   }
@@ -106,30 +95,20 @@ export class APIClient {
     let lastPage = 1
 
     try {
-      // Fetch first page to get pagination info
       const firstPageData = await this.getProducts(1)
-      console.log("[v0] First page response:", firstPageData)
-
-      // Extract products and pagination metadata
       const products = firstPageData.data || firstPageData.products || []
       allProducts = [...products]
 
-      // Get pagination metadata
       const meta = firstPageData.meta
       if (meta && meta.last_page) {
         lastPage = meta.last_page
-        console.log("[v0] Total pages:", lastPage)
 
-        // Fetch remaining pages
         for (let page = 2; page <= lastPage; page++) {
           const pageData = await this.getProducts(page)
           const pageProducts = pageData.data || pageData.products || []
           allProducts = [...allProducts, ...pageProducts]
-          console.log(`[v0] Fetched page ${page}/${lastPage}, total products so far:`, allProducts.length)
         }
       }
-
-      console.log("[v0] Total products fetched:", allProducts.length)
 
       return {
         data: allProducts,
@@ -140,7 +119,6 @@ export class APIClient {
         },
       }
     } catch (error) {
-      console.error("[v0] Error fetching all products:", error)
       throw error
     }
   }

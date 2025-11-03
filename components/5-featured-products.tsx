@@ -21,14 +21,21 @@ export default async function FeaturedProducts() {
 
   const featuredProducts = products.slice(0, 6)
 
-  const formattedProducts = featuredProducts.map((product: any) => ({
-    id: String(product.id),
-    name: product.name_ar || product.name || "منتج",
-    price: Number(product.price) || 0,
-    slug: product.slug,
-    image: product.image_url || product.images?.[0]?.url || "/placeholder.svg?height=400&width=400",
-    colors: product.product_colors?.map((c: any) => c.color_hex) || product.colors || [],
-  }))
+  const formattedProducts = featuredProducts.map((product: any) => {
+    const colorAttr = product.available_attributes?.find(
+      (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
+    )
+    const colors = colorAttr?.values?.map((v: any) => v.hex_color).filter(Boolean) || []
+
+    return {
+      id: String(product.id),
+      name: product.name_ar || product.name || "منتج",
+      price: Number(product.price) || 0,
+      slug: product.slug,
+      image: product.image_url || product.images?.[0]?.url || "/placeholder.svg?height=400&width=400",
+      colors: colors,
+    }
+  })
 
   console.log("[v0] Formatted featured products for client:", formattedProducts.length)
 

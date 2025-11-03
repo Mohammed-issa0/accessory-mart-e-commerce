@@ -15,7 +15,16 @@ interface Product {
   slug: string
   stock: number
   image: string
-  colors: string[]
+  available_attributes?: Array<{
+    id: number
+    name: string
+    slug: string
+    values: Array<{
+      id: number
+      value: string
+      hex_color?: string
+    }>
+  }>
   category: string
 }
 
@@ -77,88 +86,94 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="group">
-            <div className="relative bg-white rounded-2xl overflow-visible shadow-sm hover:shadow-md transition-shadow pb-16 md:pb-20">
-              {/* Product Image */}
-              <Link href={`/products/${product.slug}`}>
-                <div className="relative bg-[#F5F3F0] aspect-square rounded-t-2xl">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={400}
-                    height={400}
-                    className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleWishlist(product)
-                    }}
-                    className="absolute top-3 left-3 bg-white hover:bg-gray-50 rounded-full w-9 h-9"
-                  >
-                    <Heart
-                      className={`h-4 w-4 transition-colors ${
-                        isInWishlist(product.id) ? "fill-black stroke-black" : "stroke-black"
-                      }`}
+        {products.map((product) => {
+          const colorAttr = product.available_attributes?.find(
+            (a) => a.slug === "color" || a.name.toLowerCase() === "color",
+          )
+          const colors = colorAttr?.values?.map((v) => v.hex_color).filter(Boolean) || []
+
+          return (
+            <div key={product.id} className="group">
+              <div className="relative bg-white rounded-2xl overflow-visible shadow-sm hover:shadow-md transition-shadow pb-16 md:pb-20">
+                {/* Product Image */}
+                <Link href={`/products/${product.slug}`}>
+                  <div className="relative bg-[#F5F3F0] aspect-square rounded-t-2xl">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      width={400}
+                      height={400}
+                      className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-300"
                     />
-                  </Button>
-                  {product.stock < 10 && product.stock > 0 && (
-                    <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                      {product.stock} متبقي
-                    </span>
-                  )}
-                  
-                </div>
-              </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        toggleWishlist(product)
+                      }}
+                      className="absolute top-3 left-3 bg-white hover:bg-gray-50 rounded-full w-9 h-9"
+                    >
+                      <Heart
+                        className={`h-4 w-4 transition-colors ${
+                          isInWishlist(product.id) ? "fill-black stroke-black" : "stroke-black"
+                        }`}
+                      />
+                    </Button>
+                    {product.stock < 10 && product.stock > 0 && (
+                      <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                        {product.stock} متبقي
+                      </span>
+                    )}
+                  </div>
+                </Link>
 
-              <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl p-4 shadow-lg">
-                {product.category && <p className="text-xs text-gray-500 mb-1">{product.category}</p>}
+                <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl p-4 shadow-lg">
+                  {product.category && <p className="text-xs text-gray-500 mb-1">{product.category}</p>}
 
-                {/* Color slider and product name */}
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  {product.colors.length > 0 && (
-                    <div className="flex-shrink-0 max-w-[80px] overflow-x-auto scrollbar-hide">
-                      <div className="flex gap-1.5">
-                        {product.colors.map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 hover:scale-110 transition-transform"
-                            style={{ backgroundColor: color }}
-                            title={color}
-                          />
-                        ))}
+                  {/* Color slider and product name */}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    {colors.length > 0 && (
+                      <div className="flex-shrink-0 max-w-[80px] overflow-x-auto scrollbar-hide">
+                        <div className="flex gap-1.5">
+                          {colors.map((color, index) => (
+                            <div
+                              key={index}
+                              className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 hover:scale-110 transition-transform"
+                              style={{ backgroundColor: color }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Product name on the right */}
-                  <Link href={`/products/${product.slug}`} className="flex-1 text-right">
-                    <h3 className="text-sm font-medium hover:text-gray-600 transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                  </Link>
-                </div>
+                    {/* Product name on the right */}
+                    <Link href={`/products/${product.slug}`} className="flex-1 text-right">
+                      <h3 className="text-sm font-medium hover:text-gray-600 transition-colors line-clamp-1">
+                        {product.name}
+                      </h3>
+                    </Link>
+                  </div>
 
-                {/* Price and cart button */}
-                <div className="flex items-center justify-between gap-2">
-                  <Button
-                    size="icon"
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock === 0}
-                    className="rounded-full w-9 h-9 bg-black hover:bg-gray-800"
-                  >
-                    <ShoppingCart className="w-4 h-4 text-white" />
-                  </Button>
+                  {/* Price and cart button */}
+                  <div className="flex items-center justify-between gap-2">
+                    <Button
+                      size="icon"
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock === 0}
+                      className="rounded-full w-9 h-9 bg-black hover:bg-gray-800"
+                    >
+                      <ShoppingCart className="w-4 h-4 text-white" />
+                    </Button>
 
-                  <p className="text-lg font-bold">{product.price.toFixed(2)} ريال</p>
+                    <p className="text-lg font-bold">{product.price.toFixed(2)} ريال</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

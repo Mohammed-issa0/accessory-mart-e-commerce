@@ -82,21 +82,30 @@ export default async function ProductsPage({
     }
   }
 
-  let formattedProducts = products.map((product: any) => ({
-    id: product.id,
-    name: product.name_ar,
-    price: product.price,
-    slug: product.slug,
-    stock: product.stock_quantity || 0,
-    image: product.images?.[0]?.url || product.image_url || "/placeholder.svg?height=400&width=400",
-    colors: product.product_colors?.map((c: any) => c.color_hex) || product.colors || [],
-    category: product.category?.name_ar || product.category_name_ar || "",
-  }))
+  let formattedProducts = products.map((product: any) => {
+    const colorAttr = product.available_attributes?.find(
+      (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
+    )
+
+    return {
+      id: product.id,
+      name: product.name_ar,
+      price: product.price,
+      slug: product.slug,
+      stock: product.stock_quantity || 0,
+      image: product.images?.[0]?.url || product.image_url || "/placeholder.svg?height=400&width=400",
+      available_attributes: product.available_attributes || [],
+      category: product.category?.name_ar || product.category_name_ar || "",
+    }
+  })
 
   if (searchParams.color && !error) {
-    formattedProducts = formattedProducts.filter((product: any) =>
-      product.colors.some((color: string) => color.toLowerCase() === searchParams.color?.toLowerCase()),
-    )
+    formattedProducts = formattedProducts.filter((product: any) => {
+      const colorAttr = product.available_attributes?.find(
+        (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
+      )
+      return colorAttr?.values?.some((v: any) => v.hex_color?.toLowerCase() === searchParams.color?.toLowerCase())
+    })
   }
 
   return (

@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingCart, Star, ChevronLeft, Truck, Shield, RefreshCw, Ruler } from "lucide-react"
+import { Heart, ShoppingCart, ChevronLeft, Truck, Shield, RefreshCw, Ruler } from "lucide-react"
 import { useCart } from "@/lib/context/cart-context"
 import { useWishlist } from "@/lib/context/wishlist-context"
 import { motion } from "framer-motion"
@@ -20,13 +20,18 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, similarProducts }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedSize, setSelectedSize] = useState("L")
-  const [selectedColor, setSelectedColor] = useState(product.product_colors?.[0]?.color_hex || "")
+
+  const colorAttr = product.available_attributes?.find(
+    (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
+  )
+  const colors = colorAttr?.values || []
+  const [selectedColor, setSelectedColor] = useState(colors[0]?.hex_color || "")
+
   const { addToCart } = useCart()
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist()
   const { toast } = useToast()
 
   const images = product.product_images || []
-  const colors = product.product_colors || []
   const primaryImage = images[0]?.image_url || "/placeholder.svg?height=600&width=600"
 
   const handleAddToCart = () => {
@@ -64,6 +69,8 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
     }
   }
 
+  console.log(`product details ........................................... ${product}`)
+
   return (
     <div className="container mx-auto px-4">
       {/* Breadcrumb */}
@@ -89,8 +96,6 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
         >
           {/* Product Title */}
           <h1 className="text-3xl font-bold mb-4">{product.name_ar}</h1>
-
-          
 
           {/* Size Selection */}
           <div className="mb-6">
@@ -119,13 +124,13 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
               <div className="flex gap-2">
                 {colors.map((color: any) => (
                   <button
-                    key={color.color_hex}
-                    onClick={() => setSelectedColor(color.color_hex)}
+                    key={color.id}
+                    onClick={() => setSelectedColor(color.hex_color)}
                     className={`w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor === color.color_hex ? "border-black scale-110" : "border-gray-300"
+                      selectedColor === color.hex_color ? "border-black scale-110" : "border-gray-300"
                     }`}
-                    style={{ backgroundColor: color.color_hex }}
-                    title={color.color_name_ar}
+                    style={{ backgroundColor: color.hex_color }}
+                    title={color.value}
                   />
                 ))}
               </div>
@@ -221,7 +226,10 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {similarProducts.map((item: any) => {
               const itemImage = item.product_images?.find((img: any) => img.is_primary)?.image_url || "/placeholder.svg"
-              const itemColors = item.product_colors || []
+              const itemColorAttr = item.available_attributes?.find(
+                (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
+              )
+              const itemColors = itemColorAttr?.values || []
 
               return (
                 <Link key={item.id} href={`/products/${item.slug}`}>
@@ -265,7 +273,8 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
                           <div
                             key={idx}
                             className="w-6 h-6 rounded-full border border-gray-300"
-                            style={{ backgroundColor: color.color_hex }}
+                            style={{ backgroundColor: color.hex_color }}
+                            title={color.value}
                           />
                         ))}
                       </div>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload, X, Plus, Trash2 } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import Image from "next/image"
 import { apiClient } from "@/lib/api/client"
 import { Spinner } from "@/components/ui/spinner"
@@ -20,10 +20,17 @@ interface Category {
   slug: string
 }
 
-interface Color {
-  color_name_ar: string
-  color_name_en: string
-  color_hex: string
+interface AttributeValue {
+  id: number
+  value: string
+  hex_color?: string
+}
+
+interface Attribute {
+  id: number
+  name: string
+  slug: string
+  values: AttributeValue[]
 }
 
 export default function NewProductPage() {
@@ -32,7 +39,8 @@ export default function NewProductPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
   const [images, setImages] = useState<{ url: string; file: File }[]>([])
-  const [colors, setColors] = useState<Color[]>([])
+  const [availableColors, setAvailableColors] = useState<AttributeValue[]>([])
+  const [selectedColorIds, setSelectedColorIds] = useState<number[]>([])
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
@@ -49,6 +57,7 @@ export default function NewProductPage() {
 
   useEffect(() => {
     fetchCategories()
+    fetchAttributes()
   }, [])
 
   const fetchCategories = async () => {
@@ -61,6 +70,24 @@ export default function NewProductPage() {
       console.error("[v0] Error fetching categories:", error)
     } finally {
       setCategoriesLoading(false)
+    }
+  }
+
+  const fetchAttributes = async () => {
+    try {
+      const data = await apiClient.getAttributes()
+      const attributes: Attribute[] = data.data || []
+      console.log("[v0] Attributes fetched:", attributes)
+
+      // Find the color attribute
+      const colorAttr = attributes.find((a) => a.slug?.toLowerCase() === "color" || a.name?.toLowerCase() === "color")
+
+      if (colorAttr && colorAttr.values) {
+        setAvailableColors(colorAttr.values)
+        console.log("[v0] Available colors:", colorAttr.values)
+      }
+    } catch (error) {
+      console.error("[v0] Error fetching attributes:", error)
     }
   }
 
@@ -81,18 +108,8 @@ export default function NewProductPage() {
     setImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const addColor = () => {
-    setColors([...colors, { color_name_ar: "", color_name_en: "", color_hex: "#000000" }])
-  }
-
-  const updateColor = (index: number, field: keyof Color, value: string) => {
-    const newColors = [...colors]
-    newColors[index][field] = value
-    setColors(newColors)
-  }
-
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
+  const toggleColor = (colorId: number) => {
+    setSelectedColorIds((prev) => (prev.includes(colorId) ? prev.filter((id) => id !== colorId) : [...prev, colorId]))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,19 +131,36 @@ export default function NewProductPage() {
       submitFormData.append("status", formData.status)
       submitFormData.append("is_featured", formData.is_featured ? "1" : "0")
       submitFormData.append("category_id", formData.category_id)
-      submitFormData.append("has_variants", "false")
 
+      if (selectedColorIds.length > 0) {
+        submitFormData.append("has_variants", "true")
+
+        selectedColorIds.forEach((colorId, index) => {
+          const color = availableColors.find((c) => c.id === colorId)
+          const sku = `${formData.sku || "PRD"}-${color?.value || colorId}`
+
+          submitFormData.append(`variants[${index}][sku]`, sku)
+          submitFormData.append(`variants[${index}][price]`, formData.price)
+          submitFormData.append(`variants[${index}][quantity]`, formData.quantity)
+          submitFormData.append(`variants[${index}][is_default]`, index === 0 ? "1" : "0")
+          submitFormData.append(`variants[${index}][attribute_values][]`, String(colorId))
+        })
+      } else {
+        submitFormData.append("has_variants", "false")
+      }
+
+      // Add images
       images.forEach((img) => {
         submitFormData.append("images[]", img.file)
       })
 
-      colors.forEach((color, index) => {
-        submitFormData.append(`product_colors[${index}][color_name_ar]`, color.color_name_ar)
-        submitFormData.append(`product_colors[${index}][color_name_en]`, color.color_name_en)
-        submitFormData.append(`product_colors[${index}][color_hex]`, color.color_hex)
-      })
-
-      console.log("[v0] Submitting product with", images.length, "images and", colors.length, "colors")
+      console.log(
+        "[v0] Submitting product with",
+        images.length,
+        "images and",
+        selectedColorIds.length,
+        "color variants",
+      )
 
       await apiClient.createProduct(submitFormData)
 
@@ -311,71 +345,44 @@ export default function NewProductPage() {
 
         {/* Product Colors */}
         <div className="bg-white rounded-lg p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">ألوان المنتج</h2>
-            <Button type="button" onClick={addColor} size="sm" variant="outline">
-              <Plus className="w-4 h-4 ml-2" />
-              إضافة لون
-            </Button>
-          </div>
+          <h2 className="text-lg font-bold text-gray-900 mb-6">ألوان المنتج</h2>
 
-          {colors.length > 0 ? (
+          {availableColors.length > 0 ? (
             <div className="space-y-4">
-              {colors.map((color, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1 grid grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor={`color_name_ar_${index}`}>اسم اللون (عربي)</Label>
-                      <Input
-                        id={`color_name_ar_${index}`}
-                        value={color.color_name_ar}
-                        onChange={(e) => updateColor(index, "color_name_ar", e.target.value)}
-                        placeholder="مثال: أسود"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`color_name_en_${index}`}>اسم اللون (إنجليزي)</Label>
-                      <Input
-                        id={`color_name_en_${index}`}
-                        value={color.color_name_en}
-                        onChange={(e) => updateColor(index, "color_name_en", e.target.value)}
-                        placeholder="Example: Black"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`color_hex_${index}`}>كود اللون</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id={`color_hex_${index}`}
-                          type="color"
-                          value={color.color_hex}
-                          onChange={(e) => updateColor(index, "color_hex", e.target.value)}
-                          className="w-16 h-9 p-1 cursor-pointer"
-                        />
-                        <Input
-                          value={color.color_hex}
-                          onChange={(e) => updateColor(index, "color_hex", e.target.value)}
-                          placeholder="#000000"
-                          className="flex-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <Button
+              <p className="text-sm text-gray-600">اختر الألوان المتاحة للمنتج:</p>
+              <div className="flex flex-wrap gap-3">
+                {availableColors.map((color) => (
+                  <button
+                    key={color.id}
                     type="button"
-                    onClick={() => removeColor(index)}
-                    size="icon"
-                    variant="ghost"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => toggleColor(color.id)}
+                    className={`relative w-16 h-16 rounded-lg border-2 transition-all ${
+                      selectedColorIds.includes(color.id)
+                        ? "border-black scale-110 shadow-lg"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                    style={{ backgroundColor: color.hex_color }}
+                    title={color.value}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
+                    {selectedColorIds.includes(color.id) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {selectedColorIds.length > 0 && (
+                <p className="text-sm text-green-600">تم اختيار {selectedColorIds.length} لون</p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-500 text-center py-8">
-              لم يتم إضافة ألوان بعد. اضغط على "إضافة لون" لإضافة لون جديد
+              لا توجد ألوان متاحة. يرجى التأكد من إضافة خاصية "Color" في نظام الخصائص.
             </p>
           )}
         </div>
