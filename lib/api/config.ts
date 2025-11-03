@@ -1,11 +1,11 @@
 export const API_CONFIG = {
   // Default to https://ecommerce-api.wildfleet.net/api (real backend URL)
   // You can override this by setting NEXT_PUBLIC_EXTERNAL_API_URL or EXTERNAL_API_URL environment variable
-  baseURL:
-    "https://ecommerce-api.wildfleet.net/api",
+  baseURL: "https://ecommerce-api.wildfleet.net/api",
   endpoints: {
     // Auth
     login: "/login",
+    register: "/register", // Added register endpoint
     user: "/user",
     logout: "/logout",
     // Products
@@ -22,6 +22,10 @@ export const API_CONFIG = {
     createCategory: "/admin/categories",
     updateCategory: (id: string) => `/admin/categories/${id}`,
     deleteCategory: (id: string) => `/admin/categories/${id}`,
+    customers: "/admin/customers",
+    customer: (id: string) => `/admin/customers/${id}`,
+    attributes: "/attributes",
+    attribute: (id: string) => `/attributes/${id}`,
   },
 }
 

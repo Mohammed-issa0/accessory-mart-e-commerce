@@ -71,6 +71,19 @@ export class APIClient {
     })
   }
 
+  async register(data: {
+    name: string
+    email: string
+    phone: string
+    password: string
+    password_confirmation: string
+  }) {
+    return this.request<{ token: string; user: any }>(API_CONFIG.endpoints.register, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  }
+
   async getUser() {
     return this.request<{ user: any }>(API_CONFIG.endpoints.user)
   }
@@ -183,6 +196,41 @@ export class APIClient {
     return this.request<{ message: string }>(API_CONFIG.endpoints.deleteCategory(id), {
       method: "DELETE",
     })
+  }
+
+  // Customer methods
+  async getCustomers(params?: {
+    q?: string
+    verified?: boolean
+    sort_by?: string
+    sort_order?: string
+    page?: number
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.q) queryParams.append("q", params.q)
+    if (params?.verified !== undefined) queryParams.append("verified", params.verified ? "1" : "0")
+    if (params?.sort_by) queryParams.append("sort_by", params.sort_by)
+    if (params?.sort_order) queryParams.append("sort_order", params.sort_order)
+    if (params?.page) queryParams.append("page", params.page.toString())
+
+    const endpoint = queryParams.toString()
+      ? `${API_CONFIG.endpoints.customers}?${queryParams.toString()}`
+      : API_CONFIG.endpoints.customers
+
+    return this.request<{ data: any[]; meta: any }>(endpoint)
+  }
+
+  async getCustomer(id: string) {
+    return this.request<{ data: any }>(API_CONFIG.endpoints.customer(id))
+  }
+
+  // Attributes methods
+  async getAttributes() {
+    return this.request<{ data: any[] }>(API_CONFIG.endpoints.attributes)
+  }
+
+  async getAttribute(id: string) {
+    return this.request<{ data: any }>(API_CONFIG.endpoints.attribute(id))
   }
 }
 

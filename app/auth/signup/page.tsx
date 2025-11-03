@@ -9,11 +9,14 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Mail, Lock, UserIcon, Phone, CheckCircle, ArrowRight } from "lucide-react"
+import { apiClient } from "@/lib/api/client"
+import { setAuthToken } from "@/lib/api/config"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
   const [phone, setPhone] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -25,8 +28,36 @@ export default function SignupPage() {
     setLoading(true)
     setError("")
 
-    setError("التسجيل غير متوفر حالياً. يتم العمل على إضافة هذه الميزة في الـ API الخارجي.")
-    setLoading(false)
+    if (password !== passwordConfirmation) {
+      setError("كلمة المرور وتأكيد كلمة المرور غير متطابقين")
+      setLoading(false)
+      return
+    }
+
+    try {
+      const { token, user } = await apiClient.register({
+        name,
+        email,
+        phone,
+        password,
+        password_confirmation: passwordConfirmation,
+      })
+
+      console.log("[v0] Registration successful! Token:", token ? "Yes" : "No")
+      console.log("[v0] User data:", user)
+
+      setAuthToken(token)
+      setSuccess(true)
+
+      setTimeout(() => {
+        router.push("/")
+      }, 2000)
+    } catch (err: any) {
+      console.error("[v0] Registration failed:", err)
+      setError(err.message || "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (success) {
@@ -58,8 +89,8 @@ export default function SignupPage() {
             className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800"
           >
             <h2 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">تم إنشاء الحساب بنجاح!</h2>
-            <p className="text-green-700 dark:text-green-300 mb-3">يمكنك الآن تسجيل الدخول إلى حسابك</p>
-            <p className="text-green-700 dark:text-green-300 text-sm">جاري التحويل إلى صفحة تسجيل الدخول...</p>
+            <p className="text-green-700 dark:text-green-300 mb-3">تم تسجيل دخولك تلقائياً</p>
+            <p className="text-green-700 dark:text-green-300 text-sm">جاري التحويل إلى الصفحة الرئيسية...</p>
           </motion.div>
         </motion.div>
       </div>
@@ -173,7 +204,8 @@ export default function SignupPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="05xxxxxxxx"
+                placeholder="+21234567890"
+                required
                 disabled={loading}
                 className="transition-all focus:scale-[1.02]"
               />
@@ -196,13 +228,36 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                minLength={6}
+                minLength={8}
                 disabled={loading}
                 className="transition-all focus:scale-[1.02]"
               />
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="password_confirmation" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                تأكيد كلمة المرور
+              </Label>
+              <Input
+                id="password_confirmation"
+                type="password"
+                value={passwordConfirmation}
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={8}
+                disabled={loading}
+                className="transition-all focus:scale-[1.02]"
+              />
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
               <Button type="submit" className="w-full group relative overflow-hidden" disabled={loading}>
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {loading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
@@ -221,7 +276,7 @@ export default function SignupPage() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 1.1 }}
             className="text-center text-sm text-muted-foreground"
           >
             لديك حساب بالفعل؟{" "}

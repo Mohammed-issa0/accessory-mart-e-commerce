@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Package, ShoppingCart, Users, BarChart3, Settings } from "lucide-react"
+import { Home, Package, ShoppingCart, Users, BarChart3, Settings, FolderTree } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
@@ -15,6 +15,11 @@ const menuItems = [
     title: "المنتجات",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "الفئات",
+    href: "/admin/categories",
+    icon: FolderTree,
   },
   {
     title: "الطلبات",

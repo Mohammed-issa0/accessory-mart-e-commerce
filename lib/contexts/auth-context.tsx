@@ -5,12 +5,14 @@ import { apiClient } from "@/lib/api/client"
 import { setAuthToken, removeAuthToken, getAuthToken } from "@/lib/api/config"
 
 interface User {
-  id: string
+  id: number
+  name: string
   email: string
-  full_name: string
   phone?: string
-  avatar_url?: string
   is_admin?: boolean
+  email_verified_at?: string | null
+  created_at?: string
+  updated_at?: string
 }
 
 interface AuthContextType {

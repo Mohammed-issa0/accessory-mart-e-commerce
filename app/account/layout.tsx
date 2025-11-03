@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/contexts/auth-context"
 import Header from "@/components/1-header"
 import Footer from "@/components/8-footer"
 import Link from "next/link"
@@ -14,16 +14,16 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading, logout } = useAuth()
   const [isNavigating, setIsNavigating] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const supabase = createBrowserClient()
 
   useEffect(() => {
-    checkUser()
-  }, [])
+    if (!loading && !user) {
+      router.push("/auth/login")
+    }
+  }, [user, loading, router])
 
   useEffect(() => {
     setIsNavigating(true)
@@ -31,27 +31,8 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     return () => clearTimeout(timer)
   }, [pathname])
 
-  const checkUser = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        router.push("/auth/login")
-        return
-      }
-
-      setUser(user)
-    } catch (error) {
-      console.error(" Error checking user:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    await logout()
     router.push("/")
   }
 
@@ -99,6 +80,10 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     )
   }
 
+  if (!user) {
+    return null
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <Header />
@@ -127,7 +112,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                     <User className="w-7 h-7 text-white" />
                   </motion.div>
                   <div className="text-right flex-1">
-                    <p className="font-bold text-lg">{user?.user_metadata?.full_name || "المستخدم"}</p>
+                    <p className="font-bold text-lg">{user?.name || "المستخدم"}</p>
                    
                   </div>
                 </motion.div>
@@ -236,7 +221,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl z-50 flex items-center justify-center"
+                    className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl  flex items-center justify-center"
                   >
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3"></div>
