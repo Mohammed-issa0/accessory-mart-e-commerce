@@ -9,11 +9,18 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     const response = await apiClient.getAllProducts()
     const products = response.data || []
 
-    const product = products.find((p: any) => p.slug === params.slug)
+    const decodedSlug = decodeURIComponent(params.slug)
+    console.log("[v0] Looking for product with decoded slug:", decodedSlug)
+    console.log("[v0] Total products available:", products.length)
+
+    const product = products.find((p: any) => p.slug === decodedSlug)
 
     if (!product) {
+      console.log("[v0] Product not found with slug:", decodedSlug)
       notFound()
     }
+
+    console.log("[v0] Product found:", product.name_ar)
 
     // Fetch similar products from the same category
     const similarProducts = products

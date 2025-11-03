@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,22 +26,14 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-
-      setTimeout(() => {
-        // Refresh to get updated user state
-        router.refresh()
-      }, 100)
+      router.push("/")
     } catch (err: any) {
       setError(err.message || "فشل تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور.")
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    if (user && !loading) {
-        router.push("/")
-    }
-  }, [user, loading, router])
+  // The redirect now happens immediately in handleEmailLogin
 
   return (
     <div

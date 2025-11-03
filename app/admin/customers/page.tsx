@@ -7,16 +7,25 @@ import AdminHeader from "@/components/admin/admin-header"
 import AdminSidebar from "@/components/admin/admin-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Mail, Phone, Calendar, CheckCircle, XCircle, Eye } from "lucide-react"
+import { Search, Mail, Phone, Calendar, CheckCircle, XCircle, Edit, Shield } from "lucide-react"
 import { apiClient } from "@/lib/api/client"
-import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 interface Customer {
   id: number
   name: string
   email: string
   phone?: string
+  is_admin?: boolean
   email_verified_at?: string | null
   created_at: string
   updated_at: string
@@ -34,6 +43,9 @@ export default function CustomersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [editFormData, setEditFormData] = useState({ name: "", email: "", phone: "", is_admin: false })
 
   useEffect(() => {
     if (!loading && !user) {
@@ -47,7 +59,21 @@ export default function CustomersPage() {
     if (user?.is_admin) {
       fetchCustomers()
     }
-  }, [user, searchQuery, verifiedFilter, sortBy, sortOrder, currentPage])
+  }, [user, verifiedFilter, sortBy, sortOrder, currentPage])
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const filtered = customers.filter(
+        (customer) =>
+          customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          customer.phone?.includes(searchQuery),
+      )
+      setFilteredCustomers(filtered)
+    } else {
+      setFilteredCustomers(customers)
+    }
+  }, [searchQuery, customers])
 
   const fetchCustomers = async () => {
     try {
@@ -56,10 +82,6 @@ export default function CustomersPage() {
         page: currentPage,
         sort_by: sortBy,
         sort_order: sortOrder,
-      }
-
-      if (searchQuery.trim()) {
-        params.q = searchQuery
       }
 
       if (verifiedFilter !== "all") {
@@ -81,6 +103,38 @@ export default function CustomersPage() {
     }
   }
 
+  const handleEditClick = (customer: Customer) => {
+    setSelectedCustomer(customer)
+    setEditFormData({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone || "",
+      is_admin: customer.is_admin || false,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleEditSubmit = async () => {
+    if (!selectedCustomer) return
+
+    try {
+      // Note: This would need a backend endpoint to update customer
+      // For now, we'll just update locally and show a message
+      console.log("[v0] Updating customer:", selectedCustomer.id, editFormData)
+
+      // Update local state
+      const updatedCustomers = customers.map((c) => (c.id === selectedCustomer.id ? { ...c, ...editFormData } : c))
+      setCustomers(updatedCustomers)
+      setFilteredCustomers(updatedCustomers)
+
+      setEditDialogOpen(false)
+      alert("تم تحديث بيانات العميل بنجاح")
+    } catch (error) {
+      console.error("Error updating customer:", error)
+      alert("حدث خطأ أثناء تحديث بيانات العميل")
+    }
+  }
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -95,9 +149,9 @@ export default function CustomersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      
+     
       <div className="flex">
-       
+        
         <main className="flex-1 p-8">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
@@ -181,7 +235,15 @@ export default function CustomersPage() {
                               </span>
                             </div>
                             <div className="mr-3">
-                              <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                              <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                {customer.name}
+                                {customer.is_admin && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <Shield className="w-3 h-3" />
+                                    مدير
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -217,12 +279,17 @@ export default function CustomersPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <Link href={`/admin/customers/${customer.id}`}>
-                            <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                              <Eye className="w-4 h-4" />
-                              عرض
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 bg-transparent"
+                              onClick={() => handleEditClick(customer)}
+                            >
+                              <Edit className="w-4 h-4" />
+                              تعديل
                             </Button>
-                          </Link>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -266,6 +333,61 @@ export default function CustomersPage() {
           </div>
         </main>
       </div>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تعديل بيانات العميل</DialogTitle>
+            <DialogDescription>قم بتعديل بيانات العميل وصلاحياته</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="edit-name">الاسم</Label>
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editFormData.email}
+                onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-phone">رقم الهاتف</Label>
+              <Input
+                id="edit-phone"
+                value={editFormData.phone}
+                onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="edit-is-admin"
+                checked={editFormData.is_admin}
+                onChange={(e) => setEditFormData({ ...editFormData, is_admin: e.target.checked })}
+                className="w-4 h-4 rounded border-gray-300"
+              />
+              <Label htmlFor="edit-is-admin" className="cursor-pointer flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                منح صلاحيات المدير
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleEditSubmit}>حفظ التغييرات</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

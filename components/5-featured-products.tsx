@@ -27,7 +27,7 @@ export default async function FeaturedProducts() {
     price: Number(product.price) || 0,
     slug: product.slug,
     image: product.image_url || product.images?.[0]?.url || "/placeholder.svg?height=400&width=400",
-    colors: Array.isArray(product.colors) ? product.colors : [],
+    colors: product.product_colors?.map((c: any) => c.color_hex) || product.colors || [],
   }))
 
   console.log("[v0] Formatted featured products for client:", formattedProducts.length)

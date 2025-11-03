@@ -127,7 +127,13 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         submitFormData.append("images[]", img.file)
       })
 
-      console.log("[v0] Submitting product with", images.length, "new images")
+      colors.forEach((color, index) => {
+        submitFormData.append(`product_colors[${index}][color_name_ar]`, color.color_name_ar)
+        submitFormData.append(`product_colors[${index}][color_name_en]`, color.color_name_en)
+        submitFormData.append(`product_colors[${index}][color_hex]`, color.color_hex)
+      })
+
+      console.log("[v0] Submitting product with", images.length, "new images and", colors.length, "colors")
       console.log("[v0] Form data entries:")
       for (const [key, value] of submitFormData.entries()) {
         if (value instanceof File) {

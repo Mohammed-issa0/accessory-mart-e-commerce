@@ -89,7 +89,7 @@ export default async function ProductsPage({
     slug: product.slug,
     stock: product.stock_quantity || 0,
     image: product.images?.[0]?.url || product.image_url || "/placeholder.svg?height=400&width=400",
-    colors: product.colors || [],
+    colors: product.product_colors?.map((c: any) => c.color_hex) || product.colors || [],
     category: product.category?.name_ar || product.category_name_ar || "",
   }))
 

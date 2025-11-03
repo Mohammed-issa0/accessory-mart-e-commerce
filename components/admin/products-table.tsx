@@ -23,10 +23,11 @@ interface Product {
   name_ar: string
   price: number
   stock_quantity?: number
+  quantity?: number
   category_id?: number
-  category?: { name_ar: string } | null
-  product_images?: { image_url: string }[]
-  image_url?: string // Added support for direct image_url from new API
+  category?: { name_ar?: string; name?: string } | null
+  images?: { url: string }[]
+  image_url?: string
 }
 
 interface ProductsTableProps {
@@ -72,7 +73,7 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">رقم المنتج</th>
+              <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">الصورة</th>
               <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">اسم المنتج</th>
               <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">السعر</th>
               <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">المخزون</th>
@@ -81,49 +82,68 @@ export default function ProductsTable({ products, showAll = false }: ProductsTab
             </tr>
           </thead>
           <tbody>
-            {displayedProducts.map((product, index) => (
-              <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="py-3 px-4 text-sm text-gray-900">{index + 1}</td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                      {product.images?.[0]?.image_url || product.image_url ? (
+            {displayedProducts.map((product) => {
+              const stockQuantity = product.stock_quantity ?? product.quantity ?? 0
+              const imageUrl = product.images?.[0]?.url || product.image_url
+              const categoryName = product.category?.name_ar || product.category?.name || "-"
+
+              return (
+                <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-3 px-4">
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                      {imageUrl ? (
                         <Image
-                          src={product.images[0] || product.image_url || "/placeholder.svg"}
+                          src={imageUrl || "/placeholder.svg"}
                           alt={product.name_ar}
-                          width={40}
-                          height={40}
+                          width={48}
+                          height={48}
                           className="object-cover w-full h-full"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">📦</div>
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xl">📦</div>
                       )}
                     </div>
-                    <span className="text-sm text-gray-900">{product.name_ar}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-sm text-gray-900">{product.price} ريال</td>
-                <td className="py-3 px-4 text-sm text-gray-900">{product.stock_quantity || 0} قطعة</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{product.category?.name_ar || "-"}</td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/admin/products/${product.id}/edit`}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-600 hover:text-red-700"
-                      onClick={() => handleDeleteClick(product)}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="text-sm text-gray-900 font-medium">{product.name_ar}</span>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-900">{product.price} ج.س</td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={`text-sm ${
+                        stockQuantity === 0
+                          ? "text-red-600 font-semibold"
+                          : stockQuantity < 10
+                            ? "text-orange-600"
+                            : "text-green-600"
+                      }`}
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {stockQuantity} قطعة
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">{categoryName}</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/admin/products/${product.id}/edit`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-600 hover:text-red-700"
+                        onClick={() => handleDeleteClick(product)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
