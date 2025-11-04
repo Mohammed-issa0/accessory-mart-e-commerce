@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingCart, ChevronLeft, Truck, Shield, RefreshCw, Ruler } from "lucide-react"
+import { Heart, ShoppingCart, ChevronLeft, Truck, Shield, RefreshCw, Package, Star } from "lucide-react"
 import { useCart } from "@/lib/context/cart-context"
-import { useWishlist } from "@/lib/context/wishlist-context"
 import { motion } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api/client"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 const SIZES = ["XS", "S", "M", "L", "XL"]
 
@@ -20,6 +21,8 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, similarProducts }: ProductDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedSize, setSelectedSize] = useState("L")
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   const colorAttr = product.available_attributes?.find(
     (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
@@ -28,11 +31,26 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
   const [selectedColor, setSelectedColor] = useState(colors[0]?.hex_color || "")
 
   const { addToCart } = useCart()
-  const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist()
   const { toast } = useToast()
+  const { user } = useAuth()
 
-  const images = product.product_images || []
-  const primaryImage = images[0]?.image_url || "/placeholder.svg?height=600&width=600"
+  const images = product.images || []
+  const primaryImage = images[0]?.url || "/placeholder.svg?height=600&width=600"
+
+  useEffect(() => {
+    if (user && product.id) {
+      checkFavoriteStatus()
+    }
+  }, [user, product.id])
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const response = await apiClient.checkFavorite(product.id.toString())
+      setIsFavorited(response.is_favorited)
+    } catch (error) {
+      console.error("Error checking favorite status:", error)
+    }
+  }
 
   const handleAddToCart = () => {
     addToCart({
@@ -47,29 +65,36 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
     })
   }
 
-  const handleToggleWishlist = () => {
-    if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id)
+  const handleToggleFavorite = async () => {
+    if (!user) {
       toast({
-        title: "تمت الإزالة من المفضلة",
-        description: `تم إزالة ${product.name_ar} من المفضلة`,
+        title: "يرجى تسجيل الدخول",
+        description: "يجب تسجيل الدخول لإضافة المنتجات إلى المفضلة",
+        variant: "destructive",
       })
-    } else {
-      addToWishlist({
-        id: product.id,
-        name: product.name_ar,
-        price: product.price,
-        image: primaryImage,
-        slug: product.slug,
-      })
+      return
+    }
+
+    setFavoriteLoading(true)
+    try {
+      const response = await apiClient.toggleFavorite(product.id)
+      setIsFavorited(response.is_favorited)
       toast({
-        title: "تمت الإضافة إلى المفضلة",
-        description: `تم إضافة ${product.name_ar} إلى المفضلة`,
+        title: response.is_favorited ? "تمت الإضافة إلى المفضلة" : "تمت الإزالة من المفضلة",
+        description: response.is_favorited
+          ? `تم إضافة ${product.name_ar} إلى المفضلة`
+          : `تم إزالة ${product.name_ar} من المفضلة`,
       })
+    } catch (error: any) {
+      toast({
+        title: "حدث خطأ",
+        description: error.message || "فشل في تحديث المفضلة",
+        variant: "destructive",
+      })
+    } finally {
+      setFavoriteLoading(false)
     }
   }
-
-  console.log(`product details ........................................... ${product}`)
 
   return (
     <div className="container mx-auto px-4">
@@ -95,7 +120,23 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
           className="order-2 md:order-1"
         >
           {/* Product Title */}
-          <h1 className="text-3xl font-bold mb-4">{product.name_ar}</h1>
+          <h1 className="text-3xl font-bold mb-2">{product.name_ar}</h1>
+          {product.name_en && <p className="text-lg text-gray-600 mb-4">{product.name_en}</p>}
+
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              ))}
+              <span className="text-sm text-gray-600 mr-2">(4.5)</span>
+            </div>
+            {product.sku && <span className="text-sm text-gray-500">SKU: {product.sku}</span>}
+            {product.quantity !== undefined && (
+              <span className={`text-sm ${product.quantity > 0 ? "text-green-600" : "text-red-600"}`}>
+                {product.quantity > 0 ? `متوفر (${product.quantity})` : "غير متوفر"}
+              </span>
+            )}
+          </div>
 
           {/* Size Selection */}
           <div className="mb-6">
@@ -141,12 +182,22 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
           <div className="flex gap-4 mb-8">
             <div className="flex items-center justify-center px-6 py-3 border-2 border-gray-300 rounded-md">
               <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
+              {product.compare_price && product.compare_price > product.price && (
+                <span className="text-sm text-gray-500 line-through mr-2">${product.compare_price.toFixed(2)}</span>
+              )}
             </div>
             <Button onClick={handleAddToCart} className="flex-1 h-auto py-3 text-base" size="lg">
               <ShoppingCart className="ml-2 h-5 w-5" />
               اضافة الى السلة
             </Button>
           </div>
+
+          {product.description && (
+            <div className="mb-8 pb-8 border-b">
+              <h3 className="text-lg font-semibold mb-3">وصف المنتج</h3>
+              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+            </div>
+          )}
 
           {/* Features */}
           <div className="grid grid-cols-2 gap-4">
@@ -159,12 +210,12 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
               <span className="text-sm">شحن مجاني</span>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-              <Ruler className="h-6 w-6 text-gray-600" />
-              <span className="text-sm">المقاسات والمقاربة</span>
+              <Package className="h-6 w-6 text-gray-600" />
+              <span className="text-sm">ضمان الجودة</span>
             </div>
             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
               <RefreshCw className="h-6 w-6 text-gray-600" />
-              <span className="text-sm">شحن وإرجاع مجاني</span>
+              <span className="text-sm">إرجاع مجاني</span>
             </div>
           </div>
         </motion.div>
@@ -178,16 +229,17 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
         >
           {/* Wishlist Button */}
           <button
-            onClick={handleToggleWishlist}
-            className="absolute top-4 left-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+            onClick={handleToggleFavorite}
+            disabled={favoriteLoading}
+            className="absolute top-4 left-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
           >
-            <Heart className={`h-6 w-6 ${isInWishlist(product.id) ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+            <Heart className={`h-6 w-6 ${isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
           </button>
 
           {/* Main Image */}
           <div className="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4">
             <Image
-              src={images[selectedImage]?.image_url || primaryImage}
+              src={images[selectedImage]?.url || primaryImage}
               alt={product.name_ar}
               fill
               className="object-contain p-8"
@@ -207,7 +259,7 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
                   }`}
                 >
                   <Image
-                    src={img.image_url || "/placeholder.svg"}
+                    src={img.url || "/placeholder.svg"}
                     alt={`صورة ${idx + 1}`}
                     fill
                     className="object-contain p-2"
@@ -225,7 +277,8 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
           <h2 className="text-2xl font-bold mb-8 text-center">منتجات مشابهة</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {similarProducts.map((item: any) => {
-              const itemImage = item.product_images?.find((img: any) => img.is_primary)?.image_url || "/placeholder.svg"
+              const itemImage =
+                item.images?.find((img: any) => img.is_primary)?.url || item.images?.[0]?.url || "/placeholder.svg"
               const itemColorAttr = item.available_attributes?.find(
                 (a: any) => a.slug === "color" || a.name?.toLowerCase() === "color",
               )
@@ -237,36 +290,12 @@ export default function ProductDetailClient({ product, similarProducts }: Produc
                     whileHover={{ y: -8 }}
                     className="bg-gray-50 rounded-2xl p-6 group cursor-pointer relative"
                   >
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        if (isInWishlist(item.id)) {
-                          removeFromWishlist(item.id)
-                        } else {
-                          addToWishlist({
-                            id: item.id,
-                            name: item.name_ar,
-                            price: item.price,
-                            image: itemImage,
-                            slug: item.slug,
-                          })
-                        }
-                      }}
-                      className="absolute top-4 left-4 z-10 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Heart
-                        className={`h-5 w-5 ${isInWishlist(item.id) ? "fill-red-500 text-red-500" : "text-gray-600"}`}
-                      />
-                    </button>
-
                     <div className="relative aspect-square mb-4">
                       <Image src={itemImage || "/placeholder.svg"} alt={item.name_ar} fill className="object-contain" />
                     </div>
 
                     <h3 className="font-semibold mb-2 text-center">{item.name_ar}</h3>
 
-                    {/* Colors */}
                     {itemColors.length > 0 && (
                       <div className="flex justify-center gap-1 mb-3">
                         {itemColors.slice(0, 3).map((color: any, idx: number) => (

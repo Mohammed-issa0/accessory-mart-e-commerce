@@ -127,10 +127,15 @@ export default function NewProductPage() {
       submitFormData.append("sku", formData.sku || `PRD-${Date.now()}`)
       submitFormData.append("description", formData.description)
       submitFormData.append("compare_price", formData.compare_price || "")
-      submitFormData.append("quantity", formData.quantity)
+      submitFormData.append("quantity", formData.quantity || "0")
       submitFormData.append("status", formData.status)
       submitFormData.append("is_featured", formData.is_featured ? "1" : "0")
       submitFormData.append("category_id", formData.category_id)
+
+      // Add images
+      images.forEach((img) => {
+        submitFormData.append("images[]", img.file)
+      })
 
       if (selectedColorIds.length > 0) {
         submitFormData.append("has_variants", "true")
@@ -141,18 +146,13 @@ export default function NewProductPage() {
 
           submitFormData.append(`variants[${index}][sku]`, sku)
           submitFormData.append(`variants[${index}][price]`, formData.price)
-          submitFormData.append(`variants[${index}][quantity]`, formData.quantity)
+          submitFormData.append(`variants[${index}][quantity]`, formData.quantity || "0")
           submitFormData.append(`variants[${index}][is_default]`, index === 0 ? "1" : "0")
           submitFormData.append(`variants[${index}][attribute_values][]`, String(colorId))
         })
       } else {
         submitFormData.append("has_variants", "false")
       }
-
-      // Add images
-      images.forEach((img) => {
-        submitFormData.append("images[]", img.file)
-      })
 
       console.log(
         "[v0] Submitting product with",

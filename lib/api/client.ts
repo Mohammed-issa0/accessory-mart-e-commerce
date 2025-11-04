@@ -210,6 +210,22 @@ export class APIClient {
   async getAttribute(id: string) {
     return this.request<{ data: any }>(API_CONFIG.endpoints.attribute(id))
   }
+
+  // Favorites methods
+  async getFavorites() {
+    return this.request<{ data: any[] }>(API_CONFIG.endpoints.favorites)
+  }
+
+  async toggleFavorite(productId: number) {
+    return this.request<{ message: string; is_favorited: boolean }>(API_CONFIG.endpoints.toggleFavorite, {
+      method: "POST",
+      body: JSON.stringify({ product_id: productId }),
+    })
+  }
+
+  async checkFavorite(productId: string) {
+    return this.request<{ is_favorited: boolean }>(API_CONFIG.endpoints.checkFavorite(productId))
+  }
 }
 
 export const apiClient = new APIClient()

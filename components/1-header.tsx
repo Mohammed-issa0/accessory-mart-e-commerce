@@ -116,7 +116,7 @@ export default function Header() {
             {/* Center: Logo */}
             <div className="flex-1 text-center">
               <Link href="/">
-                <h1 className="text-2xl font-bold tracking-wider">ACCESSORY MART</h1>
+                <h1 className="text-2xl font-bold tracking-wider">Lamars</h1>
               </Link>
             </div>
 

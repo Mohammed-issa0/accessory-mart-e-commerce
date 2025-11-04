@@ -15,12 +15,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
 import { Upload, Copy, Banknote, Wallet } from "lucide-react"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function CheckoutPage() {
   const { cart, clearCart, totalPrice } = useCart()
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [shippingMethod, setShippingMethod] = useState("same")
   const [paymentMethod, setPaymentMethod] = useState("cash")
@@ -34,7 +33,7 @@ export default function CheckoutPage() {
   })
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
+  const { user } = useAuth()
 
   const subtotal = totalPrice
   const tax = subtotal * 0.14
@@ -43,27 +42,38 @@ export default function CheckoutPage() {
   const total = subtotal + tax - discount + shipping
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        toast({
-          title: "يرجى تسجيل الدخول",
-          description: "يجب تسجيل الدخول لإتمام عملية الشراء",
-          variant: "destructive",
-        })
-        router.push("/auth/login")
-        return
+    if (!user) {
+      toast({
+        title: "يرجى تسجيل الدخول",
+        description: "يجب تسجيل الدخول لإتمام عملية الشراء",
+        variant: "destructive",
+      })
+      router.push("/auth/login")
+      return
+    }
+
+    // Load saved checkout data
+    const savedData = localStorage.getItem("checkout_data")
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData)
+        setFormData(parsed)
+      } catch (error) {
+        console.error("Error loading saved checkout data:", error)
       }
-      setUser(user)
+    } else {
       setFormData((prev) => ({
         ...prev,
         email: user.email || "",
       }))
     }
-    checkUser()
-  }, [])
+  }, [user])
+
+  useEffect(() => {
+    if (formData.fullName || formData.phoneNumber || formData.deliveryAddress) {
+      localStorage.setItem("checkout_data", JSON.stringify(formData))
+    }
+  }, [formData])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -92,57 +102,48 @@ export default function CheckoutPage() {
 
     setLoading(true)
     try {
-      let receiptUrl = null
-      if (paymentMethod === "transfer" && paymentReceipt) {
-        const formData = new FormData()
-        formData.append("file", paymentReceipt)
-
-        const uploadResponse = await fetch(`/api/upload?filename=${paymentReceipt.name}`, {
-          method: "POST",
-          body: paymentReceipt,
-        })
-
-        if (uploadResponse.ok) {
-          const { url } = await uploadResponse.json()
-          receiptUrl = url
-        }
+      // Save order locally
+      const orderNumber = `ORD-${Date.now()}`
+      const order = {
+        orderNumber,
+        items: cart.map((item) => ({
+          id: item.id,
+          name: item.name,
+          image: item.image,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total: total,
+        customerName: formData.fullName,
+        customerEmail: formData.email,
+        customerPhone: formData.phoneNumber,
+        customerWhatsapp: formData.whatsappNumber,
+        deliveryAddress: formData.deliveryAddress,
+        paymentMethod: paymentMethod,
+        createdAt: new Date().toISOString(),
+        status: "pending",
       }
 
-      const response = await fetch("/api/orders/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: cart.map((item) => ({
-            id: item.id,
-            name_ar: item.name,
-            image: item.image,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          total: total,
-          customerName: formData.fullName,
-          customerEmail: formData.email,
-          customerPhone: formData.phoneNumber,
-          customerWhatsapp: formData.whatsappNumber,
-          deliveryAddress: formData.deliveryAddress,
-          paymentMethod: paymentMethod,
-          paymentReceipt: receiptUrl,
-        }),
+      // Save to localStorage
+      const existingOrders = JSON.parse(localStorage.getItem("local_orders") || "[]")
+      existingOrders.push(order)
+      localStorage.setItem("local_orders", JSON.stringify(existingOrders))
+
+      // Clear cart and checkout data
+      clearCart()
+      localStorage.removeItem("checkout_data")
+
+      toast({
+        title: "تم إنشاء الطلب بنجاح",
+        description: `رقم الطلب: ${orderNumber}`,
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create order")
-      }
-
-      clearCart()
-      router.push(`/checkout/confirmation?orderNumber=${data.orderNumber}`)
+      router.push(`/checkout/confirmation?orderNumber=${orderNumber}`)
     } catch (error: any) {
       console.error("Error creating order:", error)
       toast({
         title: "خطأ",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إنشاء الطلب",
         variant: "destructive",
       })
     } finally {
@@ -258,7 +259,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="mt-6 flex items-center gap-2">
-                  <Checkbox id="terms" />
+                  <Checkbox id="terms" defaultChecked />
                   <label htmlFor="terms" className="text-sm text-gray-600">
                     احفظ معلوماتي لتسريع عملية الشراء في المرات القادمة
                   </label>
